@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Building2, Phone, Mail, Calculator, FileText, Users, Shield, ChevronDown, Menu, X, UploadSimple, Trash, Download, Eye, FolderOpen, CalendarBlank, User, FilePdf, FileDoc, FileXls, FileImage } from '@phosphor-icons/react'
+import { Buildings, Phone, Envelope, Calculator as CalculatorIcon, FileText, Users, Shield, CaretDown, List, X, UploadSimple, Trash, Download, Eye, FolderOpen, Calendar, User, FilePdf, FileDoc, FileXls, FileImage } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -59,38 +59,76 @@ interface DocumentCategory {
   icon: React.ComponentType<any>
 }
 
+interface Plan {
+  id: string
+  name: string
+  price: number
+  originalPrice?: number
+  description: string
+  features: string[]
+  highlight?: string
+  maxRevenue: string
+  popular?: boolean
+}
+
+interface Testimonial {
+  id: string
+  name: string
+  profession: string
+  company: string
+  message: string
+  avatar?: string
+  since: string
+}
+
 const services: Service[] = [
   {
     id: 'contabilidade',
     name: 'Contabilidade Completa',
-    description: 'Gestão contábil completa para sua empresa com relatórios mensais',
-    basePrice: 299,
-    icon: Calculator,
-    features: ['Balanços mensais', 'DRE', 'Relatórios fiscais', 'Suporte especializado']
+    description: 'Gestão contábil completa com relatórios mensais e certificado digital incluso',
+    basePrice: 195,
+    icon: CalculatorIcon,
+    features: ['Balanços mensais', 'DRE', 'Relatórios fiscais', 'Certificado digital', 'Suporte especializado']
   },
   {
     id: 'juridico',
     name: 'Consultoria Jurídica',
-    description: 'Assessoria jurídica empresarial e consultoria em contratos',
-    basePrice: 499,
+    description: 'Assessoria jurídica empresarial completa com análise de contratos',
+    basePrice: 299,
     icon: Shield,
-    features: ['Análise de contratos', 'Consultoria trabalhista', 'Assessoria tributária', 'Defesa fiscal']
+    features: ['Análise de contratos', 'Consultoria trabalhista', 'Assessoria tributária', 'Defesa fiscal', 'Atendimento presencial']
   },
   {
     id: 'rh',
     name: 'Gestão de RH',
-    description: 'Terceirização completa do departamento pessoal',
-    basePrice: 199,
+    description: 'Departamento pessoal completo com folha de pagamento e eSocial',
+    basePrice: 149,
     icon: Users,
-    features: ['Folha de pagamento', 'Admissões e demissões', 'Férias e 13º', 'eSocial']
+    features: ['Folha de pagamento', 'Admissões e demissões', 'Férias e 13º', 'eSocial', 'Pró-labore']
   },
   {
     id: 'abertura',
-    name: 'Abertura de Empresa',
-    description: 'Processo completo de abertura da sua empresa',
-    basePrice: 599,
-    icon: Building2,
-    features: ['Registro na Junta Comercial', 'CNPJ', 'Licenças municipais', 'Alvará de funcionamento']
+    name: 'Abertura de Empresa GRÁTIS',
+    description: 'Processo completo de abertura da sua empresa sem custo inicial',
+    basePrice: 0,
+    icon: Buildings,
+    features: ['Registro na Junta Comercial', 'CNPJ', 'Licenças municipais', 'Alvará de funcionamento', 'Primeira consulta gratuita']
+  },
+  {
+    id: 'mei',
+    name: 'Desenquadramento MEI',
+    description: 'Transição gratuita do MEI para outros regimes tributários',
+    basePrice: 0,
+    icon: FileText,
+    features: ['Análise do perfil atual', 'Processo gratuito', 'Orientação completa', 'Suporte especializado']
+  },
+  {
+    id: 'fiscal',
+    name: 'Gestão Fiscal',
+    description: 'Controle completo de impostos e obrigações fiscais',
+    basePrice: 120,
+    icon: Shield,
+    features: ['Cálculo de impostos', 'Emissão de guias', 'Declarações obrigatórias', 'Otimização tributária']
   }
 ]
 
@@ -100,7 +138,7 @@ const documentCategories: DocumentCategory[] = [
     name: 'Documentos Contábeis',
     description: 'Notas fiscais, recibos, extratos bancários',
     acceptedTypes: ['pdf', 'jpg', 'png', 'xlsx', 'xml'],
-    icon: Calculator
+    icon: CalculatorIcon
   },
   {
     id: 'fiscal',
@@ -131,6 +169,116 @@ const documentCategories: DocumentCategory[] = [
     icon: FolderOpen
   }
 ]
+
+const plans: Plan[] = [
+  {
+    id: 'essencial',
+    name: 'ESSENCIAL',
+    price: 149,
+    description: 'Ideal para MEI e pequenas empresas',
+    maxRevenue: 'até R$ 30 mil',
+    features: [
+      'Contabilidade completa',
+      'Abertura de empresa GRÁTIS',
+      'Certificado digital incluso',
+      'Atendimento via WhatsApp',
+      'Emissão de notas fiscais',
+      'Cálculo de impostos',
+      'Pró-labore dos sócios',
+      'Primeira consulta gratuita'
+    ]
+  },
+  {
+    id: 'profissional',
+    name: 'PROFISSIONAL',
+    price: 195,
+    originalPrice: 250,
+    description: 'Consultoria jurídica integrada',
+    maxRevenue: 'até R$ 80 mil',
+    popular: true,
+    highlight: 'MELHOR CUSTO-BENEFÍCIO',
+    features: [
+      'Tudo do plano Essencial',
+      'Consultoria jurídica inclusa',
+      'Análise de contratos',
+      'Atendimento presencial',
+      'Folha de pagamento',
+      'Assessoria trabalhista',
+      'Otimização tributária',
+      'Suporte estendido'
+    ]
+  },
+  {
+    id: 'premium',
+    name: 'PREMIUM',
+    price: 299,
+    originalPrice: 399,
+    description: 'Assessor dedicado e atendimento VIP',
+    maxRevenue: 'até R$ 200 mil',
+    highlight: 'ATENDIMENTO VIP',
+    features: [
+      'Tudo do plano Profissional',
+      'Assessor dedicado exclusivo',
+      'Atendimento prioritário',
+      'Consultoria estratégica mensal',
+      'Relatórios personalizados',
+      'Auditoria preventiva',
+      'Planejamento tributário',
+      'Suporte 24/7'
+    ]
+  }
+]
+
+const testimonials: Testimonial[] = [
+  {
+    id: '1',
+    name: 'Ana Silva',
+    profession: 'Médica Dermatologista',
+    company: 'Clínica Bella Pele',
+    message: 'A MV Consultoria me ajudou desde a abertura da clínica até a gestão completa. O atendimento presencial faz toda a diferença.',
+    since: '2022'
+  },
+  {
+    id: '2',
+    name: 'Carlos Mendes',
+    profession: 'Arquiteto',
+    company: 'CM Arquitetura',
+    message: 'Migrei de outro contador e foi a melhor decisão. Além da contabilidade, tenho apoio jurídico completo para meus contratos.',
+    since: '2021'
+  },
+  {
+    id: '3',
+    name: 'Marina Santos',
+    profession: 'Consultora de Marketing',
+    company: 'MS Digital',
+    message: 'O que mais me impressiona é a proatividade da equipe. Eles antecipam problemas e sempre trazem soluções inteligentes.',
+    since: '2023'
+  },
+  {
+    id: '4',
+    name: 'Roberto Lima',
+    profession: 'Empresário',
+    company: 'Lima Tech Solutions',
+    message: 'A abertura gratuita da empresa e a primeira consulta sem custo me convenceram. Hoje não troco a MV por nada.',
+    since: '2020'
+  },
+  {
+    id: '5',
+    name: 'Juliana Costa',
+    profession: 'Psicóloga',
+    company: 'Espaço Mente Sã',
+    message: 'Tenho um assessor dedicado que conhece meu negócio. É como ter um CFO pessoal cuidando de tudo.',
+    since: '2022'
+  },
+  {
+    id: '6',
+    name: 'Fernando Oliveira',
+    profession: 'Advogado',
+    company: 'Oliveira & Associados',
+    message: 'A integração entre contabilidade e jurídico é perfeita. Economizo tempo e dinheiro tendo tudo em um só lugar.',
+    since: '2019'
+  }
+]
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -139,12 +287,13 @@ function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
-            <Building2 className="h-8 w-8 text-primary" weight="bold" />
+            <Buildings className="h-8 w-8 text-primary" weight="bold" />
             <span className="text-xl font-bold text-primary">MV Consultoria</span>
           </div>
 
           <nav className="hidden md:flex items-center space-x-8">
             <a href="#servicos" className="text-foreground hover:text-primary transition-colors">Serviços</a>
+            <a href="#planos" className="text-foreground hover:text-primary transition-colors">Planos</a>
             <a href="#calculadora" className="text-foreground hover:text-primary transition-colors">Calculadora</a>
             <a href="#sobre" className="text-foreground hover:text-primary transition-colors">Sobre</a>
             <a href="#contato" className="text-foreground hover:text-primary transition-colors">Contato</a>
@@ -158,7 +307,7 @@ function Header() {
             className="md:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <X /> : <Menu />}
+            {isMenuOpen ? <X /> : <List />}
           </Button>
         </div>
 
@@ -186,19 +335,39 @@ function Hero() {
     <section className="bg-gradient-to-br from-primary to-blue-600 text-white py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-          Consultoria Empresarial
-          <span className="block text-accent">Completa e Eficiente</span>
+          Da abertura do CNPJ até a consultoria completa,
+          <span className="block text-accent">conte com a MV Consultoria</span>
         </h1>
-        <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-          Transforme sua empresa com nossos serviços especializados em contabilidade, 
-          jurídico e recursos humanos. Mais de 1.000 empresas confiam na MV Consultoria.
+        <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-4xl mx-auto">
+          Escritório de consultoria empresarial com atendimento presencial e personalizado. 
+          Abertura de empresa GRÁTIS + Consultoria jurídica integrada.
         </p>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-3xl mx-auto text-sm">
+          <div className="flex items-center justify-center space-x-2">
+            <span>✓</span>
+            <span>Abertura GRÁTIS</span>
+          </div>
+          <div className="flex items-center justify-center space-x-2">
+            <span>✓</span>
+            <span>Atendimento Presencial</span>
+          </div>
+          <div className="flex items-center justify-center space-x-2">
+            <span>✓</span>
+            <span>Jurídico + Contábil</span>
+          </div>
+          <div className="flex items-center justify-center space-x-2">
+            <span>✓</span>
+            <span>Primeira Consulta Grátis</span>
+          </div>
+        </div>
+        
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            Calcular Preços
+          <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-4 text-lg">
+            Abrir Empresa Grátis
           </Button>
-          <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-            Falar com Consultor
+          <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary px-8 py-4 text-lg">
+            Primeira Consulta Grátis
           </Button>
         </div>
       </div>
@@ -206,160 +375,80 @@ function Hero() {
   )
 }
 
-function DocumentManager() {
-  const [documents, setDocuments] = useKV('client-documents', [] as ClientDocument[])
-
-  const handleDocumentUpload = (docData: Omit<ClientDocument, 'id' | 'uploadedAt'>) => {
-    const newDoc: ClientDocument = {
-      ...docData,
-      id: Date.now().toString(),
-      uploadedAt: new Date().toISOString()
-    }
-    setDocuments((prev) => [newDoc, ...prev])
-  }
-
+function PlansSection() {
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Sistema de Upload de Documentos</CardTitle>
-          <CardDescription>
-            Gerencie seus documentos empresariais de forma segura
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Sistema de upload de documentos integrado. Total de documentos: {documents.length}
+    <section id="planos" className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Conheça nossos planos
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Planos de acordo com o seu perfil empresarial. Abertura de empresa grátis em todos os planos.
           </p>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
+        </div>
 
-function ClientPortal() {
-  const [leads] = useKV('leads', [] as Lead[])
-  const [documents] = useKV('client-documents', [] as ClientDocument[])
-  
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">Área do Cliente</Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Portal do Cliente</DialogTitle>
-          <DialogDescription>
-            Gerencie seus documentos e acompanhe o progresso dos seus serviços
-          </DialogDescription>
-        </DialogHeader>
-        
-        <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="documents">Documentos</TabsTrigger>
-            <TabsTrigger value="leads">Leads</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="dashboard" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center space-x-2">
-                    <FileText className="w-4 h-4" />
-                    <span>Documentos</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-primary">{documents.length}</div>
-                  <p className="text-xs text-muted-foreground">Total de arquivos</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center space-x-2">
-                    <Users className="w-4 h-4" />
-                    <span>Leads</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-accent">{leads.length}</div>
-                  <p className="text-xs text-muted-foreground">Contatos recebidos</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center space-x-2">
-                    <Shield className="w-4 h-4" />
-                    <span>Status</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Badge className="bg-green-100 text-green-800">Ativo</Badge>
-                  <p className="text-xs text-muted-foreground mt-1">Sistema funcionando</p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="documents">
-            <DocumentManager />
-          </TabsContent>
-          
-          <TabsContent value="leads">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Leads Recebidos ({leads.length})</h3>
-              </div>
-              {leads.length === 0 ? (
-                <div className="text-center py-12">
-                  <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Nenhum lead recebido ainda</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {leads.slice(0, 5).map((lead) => (
-                    <Card key={lead.id} className="p-4">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-semibold">{lead.name}</h4>
-                          <p className="text-sm text-muted-foreground">{lead.email}</p>
-                          <p className="text-sm text-muted-foreground">{lead.phone}</p>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {plans.map((plan) => (
+            <Card key={plan.id} className={`relative hover:shadow-xl transition-shadow ${plan.popular ? 'border-accent border-2 scale-105' : ''}`}>
+              {plan.highlight && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-accent text-accent-foreground px-4 py-1 text-xs font-semibold">
+                    {plan.highlight}
+                  </Badge>
                 </div>
               )}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
-  )
-}
-}
-
-function Hero() {
-  return (
-    <section className="bg-gradient-to-br from-primary to-blue-600 text-white py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6">
-          Consultoria Empresarial
-          <span className="block text-accent">Completa e Eficiente</span>
-        </h1>
-        <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-          Transforme sua empresa com nossos serviços especializados em contabilidade, 
-          jurídico e recursos humanos. Mais de 1.000 empresas confiam na MV Consultoria.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            Calcular Preços
-          </Button>
-          <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-            Falar com Consultor
+              
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-lg font-bold text-foreground mb-2">
+                  {plan.name}
+                </CardTitle>
+                <div className="mb-4">
+                  {plan.originalPrice && (
+                    <span className="text-sm text-muted-foreground line-through mr-2">
+                      R$ {plan.originalPrice}
+                    </span>
+                  )}
+                  <div className="flex items-baseline justify-center">
+                    <span className="text-3xl font-bold text-primary">R$ {plan.price}</span>
+                    <span className="text-muted-foreground ml-1">/mês</span>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">{plan.description}</p>
+                <p className="text-xs text-accent font-semibold mt-2">
+                  Faturamento mensal ideal {plan.maxRevenue}
+                </p>
+              </CardHeader>
+              
+              <CardContent className="space-y-3">
+                {plan.features.map((feature, index) => (
+                  <div key={index} className="flex items-start space-x-3">
+                    <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-green-600 text-xs">✓</span>
+                    </div>
+                    <span className="text-sm text-foreground">{feature}</span>
+                  </div>
+                ))}
+                
+                <div className="pt-6">
+                  <Button 
+                    className={`w-full ${plan.popular ? 'bg-accent hover:bg-accent/90' : ''}`}
+                    size="lg"
+                  >
+                    Contratar Plano
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        
+        <div className="text-center mt-12">
+          <p className="text-sm text-muted-foreground mb-4">
+            Precisa de algo personalizado? Temos soluções sob medida.
+          </p>
+          <Button variant="outline" size="lg">
+            Falar com Especialista
           </Button>
         </div>
       </div>
@@ -416,9 +505,9 @@ function ServicesSection() {
 }
 
 function Calculator() {
-  const [selectedServices, setSelectedServices] = useKV('selected-services', new Set<string>())
-  const [companySize, setCompanySize] = useKV('company-size', '')
-  const [calculationResult, setCalculationResult] = useKV('calculation-result', null)
+  const [selectedServices, setSelectedServices] = useState<Set<string>>(new Set())
+  const [companySize, setCompanySize] = useState<string>('')
+  const [calculationResult, setCalculationResult] = useState<any>(null)
 
   const handleServiceToggle = (serviceId: string) => {
     setSelectedServices((prev) => {
@@ -557,7 +646,7 @@ function Calculator() {
 }
 
 function ContactForm() {
-  const [leads, setLeads] = useKV('leads', [] as Lead[])
+  const [leads, setLeads] = useState<Lead[]>([])
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -702,7 +791,7 @@ function ContactForm() {
 
             <Card className="p-6">
               <div className="flex items-start space-x-4">
-                <Mail className="w-6 h-6 text-primary mt-1" />
+                <Envelope className="w-6 h-6 text-primary mt-1" />
                 <div>
                   <h4 className="font-semibold text-foreground">Email</h4>
                   <p className="text-muted-foreground">contato@mvconsultoria.com.br</p>
@@ -713,7 +802,7 @@ function ContactForm() {
 
             <Card className="p-6">
               <div className="flex items-start space-x-4">
-                <Building2 className="w-6 h-6 text-primary mt-1" />
+                <Buildings className="w-6 h-6 text-primary mt-1" />
                 <div>
                   <h4 className="font-semibold text-foreground">Endereço</h4>
                   <p className="text-muted-foreground">
@@ -733,6 +822,246 @@ function ContactForm() {
                 Domingo: Fechado
               </p>
             </Card>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function MEISection() {
+  return (
+    <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+              Sua empresa precisa deixar de ser MEI?
+            </h2>
+            <p className="text-lg text-muted-foreground mb-6">
+              Você não precisa esperar ultrapassar o limite de faturamento. Temos especialistas 
+              prontos para analisar o perfil atual do seu MEI e explicar todo o processo.
+            </p>
+            
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-sm">✓</span>
+                </div>
+                <span className="text-foreground">Análise gratuita do seu perfil MEI</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-sm">✓</span>
+                </div>
+                <span className="text-foreground">Processo de desenquadramento sem custo</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-sm">✓</span>
+                </div>
+                <span className="text-foreground">Orientação sobre a melhor opção tributária</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-sm">✓</span>
+                </div>
+                <span className="text-foreground">Suporte completo durante a transição</span>
+              </div>
+            </div>
+
+            <Button size="lg" className="bg-accent hover:bg-accent/90">
+              Deixar de ser MEI Gratuitamente
+            </Button>
+          </div>
+
+          <div className="bg-white p-8 rounded-2xl shadow-lg">
+            <div className="text-center mb-6">
+              <div className="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                <Buildings className="w-10 h-10 text-accent-foreground" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-2">
+                Especialista MV Consultoria
+              </h3>
+              <p className="text-muted-foreground">
+                Pronto para ajudar na sua transição
+              </p>
+            </div>
+
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h4 className="font-semibold text-foreground mb-3">Quando deixar de ser MEI:</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Faturamento próximo a R$ 81.000/ano</li>
+                <li>• Necessidade de sócios na empresa</li>
+                <li>• Exercer atividade não permitida no MEI</li>
+                <li>• Buscar crescimento empresarial</li>
+                <li>• Necessidade de emitir notas para PJ</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function StatsSection() {
+  return (
+    <section className="py-16 bg-primary text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div>
+            <div className="text-3xl md:text-4xl font-bold text-accent mb-2">500+</div>
+            <p className="text-sm text-blue-100">Empresas atendidas</p>
+          </div>
+          <div>
+            <div className="text-3xl md:text-4xl font-bold text-accent mb-2">15+</div>
+            <p className="text-sm text-blue-100">Especialistas</p>
+          </div>
+          <div>
+            <div className="text-3xl md:text-4xl font-bold text-accent mb-2">5+</div>
+            <p className="text-sm text-blue-100">Cidades atendidas</p>
+          </div>
+          <div>
+            <div className="text-3xl md:text-4xl font-bold text-accent mb-2">99%</div>
+            <p className="text-sm text-blue-100">Clientes satisfeitos</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ProcessSection() {
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Abrir empresa grátis é com a MV Consultoria
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            Processo 100% gratuito e descomplicado. Nossa equipe cuida de toda a burocracia para você.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-accent-foreground">1</span>
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Cadastro Online</h3>
+            <p className="text-sm text-muted-foreground">
+              Você realiza o cadastro no site e agenda sua primeira consulta gratuita.
+            </p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-accent-foreground">2</span>
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Análise Personalizada</h3>
+            <p className="text-sm text-muted-foreground">
+              Avaliamos seu modelo de negócio e definimos a melhor estrutura empresarial.
+            </p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-accent-foreground">3</span>
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Documentação</h3>
+            <p className="text-sm text-muted-foreground">
+              Preparamos toda a documentação e orientamos sobre taxas obrigatórias.
+            </p>
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-accent-foreground">4</span>
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">CNPJ Ativo!</h3>
+            <p className="text-sm text-muted-foreground">
+              Cuidamos do processo nos órgãos e avisamos quando você puder operar.
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center mt-12">
+          <Button size="lg" className="bg-accent hover:bg-accent/90 px-8 py-4 text-lg">
+            Quero Abrir Minha Empresa Grátis
+          </Button>
+          <p className="text-sm text-muted-foreground mt-4">
+            ✓ Processo 100% gratuito &nbsp;&nbsp;|&nbsp;&nbsp; ✓ Primeira consulta sem custo &nbsp;&nbsp;|&nbsp;&nbsp; ✓ Suporte completo
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function TestimonialsSection() {
+  return (
+    <section className="py-20 bg-secondary/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Confira o que nossos clientes falam sobre nós
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Somos reconhecidos pela nossa especialização e atendimento personalizado em diversos segmentos.
+          </p>
+          <div className="flex items-center justify-center space-x-4 mt-6">
+            <div className="flex items-center space-x-1">
+              <span className="text-yellow-500">⭐⭐⭐⭐⭐</span>
+              <span className="font-semibold text-foreground">4.9</span>
+            </div>
+            <span className="text-muted-foreground">|</span>
+            <span className="text-muted-foreground">Avaliações reais de clientes</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {testimonials.map((testimonial) => (
+            <Card key={testimonial.id} className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-semibold text-lg">
+                      {testimonial.name.charAt(0)}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-foreground">{testimonial.name}</h4>
+                    <p className="text-sm text-muted-foreground">{testimonial.profession}</p>
+                    <p className="text-xs text-accent">{testimonial.company}</p>
+                    <p className="text-xs text-muted-foreground mb-3">Cliente desde {testimonial.since}</p>
+                  </div>
+                </div>
+                
+                <blockquote className="text-sm text-foreground leading-relaxed">
+                  "{testimonial.message}"
+                </blockquote>
+                
+                <div className="flex items-center space-x-1 mt-4">
+                  <span className="text-yellow-500 text-sm">⭐⭐⭐⭐⭐</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <p className="text-muted-foreground mb-6">
+            Junte-se a mais de 500+ empresas que confiam na MV Consultoria
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-accent hover:bg-accent/90">
+              Abrir Empresa Grátis
+            </Button>
+            <Button size="lg" variant="outline">
+              Primeira Consulta Grátis
+            </Button>
           </div>
         </div>
       </div>
@@ -1053,7 +1382,7 @@ function DocumentUpload({ onUpload, category }: { onUpload: (doc: Omit<ClientDoc
 }
 
 function DocumentManager() {
-  const [documents, setDocuments] = useKV('client-documents', [] as ClientDocument[])
+  const [documents, setDocuments] = useState<ClientDocument[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'size'>('date')
@@ -1329,7 +1658,7 @@ function DocumentManager() {
                               {categoryData?.name}
                             </Badge>
                             <span className="flex items-center space-x-1">
-                              <CalendarBlank className="w-3 h-3" />
+                              <Calendar className="w-3 h-3" />
                               <span>{new Date(doc.uploadedAt).toLocaleDateString()}</span>
                             </span>
                             <span className="flex items-center space-x-1">
@@ -1364,8 +1693,8 @@ function DocumentManager() {
 }
 
 function ClientPortal() {
-  const [leads] = useKV('leads', [] as Lead[])
-  const [documents] = useKV('client-documents', [] as ClientDocument[])
+  const [leads] = useState<Lead[]>([])
+  const [documents] = useState<ClientDocument[]>([])
   
   return (
     <Dialog>
@@ -1420,7 +1749,7 @@ function ClientPortal() {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center space-x-2">
-                    <CalendarBlank className="w-4 h-4" />
+                    <Calendar className="w-4 h-4" />
                     <span>Última Atualização</span>
                   </CardTitle>
                 </CardHeader>
@@ -1605,7 +1934,7 @@ function ClientPortal() {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground">
                             <p className="flex items-center space-x-1">
-                              <Mail className="w-3 h-3" />
+                              <Envelope className="w-3 h-3" />
                               <span>{lead.email}</span>
                             </p>
                             <p className="flex items-center space-x-1">
@@ -1614,12 +1943,12 @@ function ClientPortal() {
                             </p>
                             {lead.company && (
                               <p className="flex items-center space-x-1">
-                                <Building2 className="w-3 h-3" />
+                                <Buildings className="w-3 h-3" />
                                 <span>{lead.company}</span>
                               </p>
                             )}
                             <p className="flex items-center space-x-1">
-                              <CalendarBlank className="w-3 h-3" />
+                              <Calendar className="w-3 h-3" />
                               <span>{new Date(lead.createdAt).toLocaleDateString()}</span>
                             </p>
                           </div>
@@ -1654,7 +1983,7 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <Building2 className="h-6 w-6" weight="bold" />
+              <Buildings className="h-6 w-6" weight="bold" />
               <span className="text-lg font-bold">MV Consultoria</span>
             </div>
             <p className="text-sm text-primary-foreground/80">
@@ -1707,49 +2036,83 @@ function App() {
     <div className="min-h-screen bg-background">
       <Header />
       <Hero />
-      <main className="py-20">
+      <MEISection />
+      <ServicesSection />
+      <ProcessSection />
+      <PlansSection />
+      <StatsSection />
+      <Calculator />
+      <TestimonialsSection />
+      <About />
+      <ContactForm />
+      
+      <footer className="bg-primary text-primary-foreground py-12 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Sistema de Gestão Empresarial
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Sistema completo com upload de documentos integrado para facilitar sua gestão empresarial
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <Buildings className="h-6 w-6" weight="bold" />
+                <span className="text-lg font-bold">MV Consultoria</span>
+              </div>
+              <p className="text-sm text-primary-foreground/80 mb-4">
+                Consultoria empresarial completa com atendimento presencial e personalizado.
+              </p>
+              <div className="flex space-x-4">
+                <span className="text-primary-foreground/60">Siga-nos:</span>
+                <div className="flex space-x-2">
+                  <span className="w-8 h-8 bg-primary-foreground/10 rounded-full flex items-center justify-center">f</span>
+                  <span className="w-8 h-8 bg-primary-foreground/10 rounded-full flex items-center justify-center">in</span>
+                  <span className="w-8 h-8 bg-primary-foreground/10 rounded-full flex items-center justify-center">ig</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Serviços</h4>
+              <ul className="space-y-2 text-sm text-primary-foreground/80">
+                <li>Abertura de Empresa Grátis</li>
+                <li>Contabilidade Completa</li>
+                <li>Consultoria Jurídica</li>
+                <li>Gestão de RH</li>
+                <li>Desenquadramento MEI</li>
+                <li>Gestão Fiscal</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Empresa</h4>
+              <ul className="space-y-2 text-sm text-primary-foreground/80">
+                <li>Sobre Nós</li>
+                <li>Nossa Equipe</li>
+                <li>Depoimentos</li>
+                <li>Blog</li>
+                <li>Carreira</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Contato</h4>
+              <ul className="space-y-2 text-sm text-primary-foreground/80">
+                <li>(11) 99999-9999</li>
+                <li>contato@mvconsultoria.com.br</li>
+                <li>São Paulo - SP</li>
+                <li>Atendimento presencial</li>
+              </ul>
+            </div>
           </div>
+
+          <Separator className="my-8 bg-primary-foreground/20" />
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {services.map((service) => (
-              <Card key={service.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <service.icon className="w-6 h-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl">{service.name}</CardTitle>
-                  <CardDescription>{service.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 mb-4">
-                    {service.features.map((feature, index) => (
-                      <div key={index} className="flex items-center text-sm text-muted-foreground">
-                        <div className="w-1.5 h-1.5 bg-accent rounded-full mr-2" />
-                        {feature}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-primary">
-                      R$ {service.basePrice}
-                      <span className="text-sm font-normal text-muted-foreground">/mês</span>
-                    </span>
-                    <Button size="sm">Contratar</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-primary-foreground/60">
+            <p>© 2025 MV Consultoria. Todos os direitos reservados.</p>
+            <div className="flex space-x-4 mt-4 md:mt-0">
+              <span>Política de Privacidade</span>
+              <span>Termos de Uso</span>
+              <span>Cookies</span>
+            </div>
           </div>
         </div>
-      </main>
+      </footer>
       <Toaster richColors />
     </div>
   )
