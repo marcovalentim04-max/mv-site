@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Building2, Phone, Mail, Calculator, FileText, Users, Shield, ChevronDown, Menu, X } from '@phosphor-icons/react'
+import { Building2, Phone, Mail, Calculator, FileText, Users, Shield, ChevronDown, Menu, X, UploadSimple, Trash, Download, Eye, FolderOpen, CalendarBlank, User, FilePdf, FileDoc, FileXls, FileImage } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -8,8 +8,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Progress } from '@/components/ui/progress'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
 
@@ -31,6 +33,30 @@ interface Lead {
   service: string
   message: string
   createdAt: string
+}
+
+interface ClientDocument {
+  id: string
+  name: string
+  originalName: string
+  type: string
+  size: number
+  category: 'contabil' | 'fiscal' | 'trabalhista' | 'juridico' | 'outros'
+  uploadedAt: string
+  uploadedBy: string
+  description?: string
+  tags: string[]
+  isPublic: boolean
+  url?: string // In a real app, this would be the file URL
+  content?: string // For demo purposes, storing base64 or text content
+}
+
+interface DocumentCategory {
+  id: string
+  name: string
+  description: string
+  acceptedTypes: string[]
+  icon: React.ComponentType<any>
 }
 
 const services: Service[] = [
@@ -65,6 +91,44 @@ const services: Service[] = [
     basePrice: 599,
     icon: Building2,
     features: ['Registro na Junta Comercial', 'CNPJ', 'Licenças municipais', 'Alvará de funcionamento']
+  }
+]
+
+const documentCategories: DocumentCategory[] = [
+  {
+    id: 'contabil',
+    name: 'Documentos Contábeis',
+    description: 'Notas fiscais, recibos, extratos bancários',
+    acceptedTypes: ['pdf', 'jpg', 'png', 'xlsx', 'xml'],
+    icon: Calculator
+  },
+  {
+    id: 'fiscal',
+    name: 'Documentos Fiscais',
+    description: 'Declarações, guias de impostos, certificados',
+    acceptedTypes: ['pdf', 'xml', 'xlsx'],
+    icon: FileText
+  },
+  {
+    id: 'trabalhista',
+    name: 'Documentos Trabalhistas',
+    description: 'Contratos, folhas de ponto, exames médicos',
+    acceptedTypes: ['pdf', 'jpg', 'png', 'docx'],
+    icon: Users
+  },
+  {
+    id: 'juridico',
+    name: 'Documentos Jurídicos',
+    description: 'Contratos, procurações, estatutos sociais',
+    acceptedTypes: ['pdf', 'docx'],
+    icon: Shield
+  },
+  {
+    id: 'outros',
+    name: 'Outros Documentos',
+    description: 'Documentos diversos não categorizados',
+    acceptedTypes: ['pdf', 'jpg', 'png', 'docx', 'xlsx'],
+    icon: FolderOpen
   }
 ]
 
@@ -599,107 +663,821 @@ function About() {
   )
 }
 
+function DocumentUpload({ onUpload, category }: { onUpload: (doc: Omit<ClientDocument, 'id' | 'uploadedAt'>) => void, category?: DocumentCategory }) {
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState(category?.id || '')
+  const [description, setDescription] = useState('')
+  const [tags, setTags] = useState('')
+  const [isPublic, setIsPublic] = useState(false)
+  const [dragActive, setDragActive] = useState(false)
+
+  const handleFileUpload = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files)
+    
+    for (const file of fileArray) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast.error(`Arquivo ${file.name} é muito grande (máximo 10MB)`)
+        continue
+      }
+
+      const categoryData = documentCategories.find(c => c.id === selectedCategory)
+      const fileExtension = file.name.split('.').pop()?.toLowerCase()
+      
+      if (categoryData && !categoryData.acceptedTypes.includes(fileExtension || '')) {
+        toast.error(`Tipo de arquivo ${fileExtension} não aceito para a categoria ${categoryData.name}`)
+        continue
+      }
+
+      setIsUploading(true)
+      setUploadProgress(0)
+
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval)
+            return 90
+          }
+          return prev + Math.random() * 20
+        })
+      }, 200)
+
+      try {
+        // In a real app, you'd upload to a server
+        // For demo, we'll simulate with setTimeout and base64 conversion
+        const content = await new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onload = (e) => resolve(e.target?.result as string)
+          reader.readAsDataURL(file)
+        })
+
+        setTimeout(() => {
+          const newDoc: Omit<ClientDocument, 'id' | 'uploadedAt'> = {
+            name: file.name,
+            originalName: file.name,
+            type: file.type,
+            size: file.size,
+            category: selectedCategory as ClientDocument['category'],
+            uploadedBy: 'Cliente Atual',
+            description: description || undefined,
+            tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+            isPublic,
+            content
+          }
+
+          setUploadProgress(100)
+          onUpload(newDoc)
+          toast.success(`${file.name} enviado com sucesso!`)
+          
+          setTimeout(() => {
+            setIsUploading(false)
+            setUploadProgress(0)
+            setDescription('')
+            setTags('')
+          }, 1000)
+        }, 1500)
+
+      } catch (error) {
+        toast.error(`Erro ao enviar ${file.name}`)
+        setIsUploading(false)
+        setUploadProgress(0)
+      }
+
+      clearInterval(progressInterval)
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDragActive(false)
+    if (e.dataTransfer.files) {
+      handleFileUpload(e.dataTransfer.files)
+    }
+  }
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true)
+    } else if (e.type === 'dragleave') {
+      setDragActive(false)
+    }
+  }
+
+  const getFileIcon = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase()
+    switch (extension) {
+      case 'pdf': return FilePdf
+      case 'doc':
+      case 'docx': return FileDoc
+      case 'xls':
+      case 'xlsx': return FileXls
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif': return FileImage
+      default: return FileText
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="category">Categoria do Documento *</Label>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione a categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              {documentCategories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  <div className="flex items-center space-x-2">
+                    <cat.icon className="w-4 h-4" />
+                    <span>{cat.name}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
+          <Input
+            id="tags"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="urgente, declaracao, 2024"
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="description">Descrição (opcional)</Label>
+        <Textarea
+          id="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Adicione uma descrição para o documento..."
+          rows={3}
+        />
+      </div>
+
+      <div
+        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          dragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+        } ${isUploading ? 'pointer-events-none opacity-50' : ''}`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+      >
+        {isUploading ? (
+          <div className="space-y-4">
+            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto">
+              <UploadSimple className="w-6 h-6 text-primary animate-pulse" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Enviando documento...</p>
+              <Progress value={uploadProgress} className="mt-2" />
+              <p className="text-xs text-muted-foreground mt-1">{Math.round(uploadProgress)}%</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <UploadSimple className="w-6 h-6 text-primary" />
+            </div>
+            <p className="text-lg font-medium text-foreground mb-2">
+              Arraste arquivos aqui ou clique para selecionar
+            </p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Arquivos aceitos: PDF, Word, Excel, Imagens (máximo 10MB)
+            </p>
+            <input
+              type="file"
+              multiple
+              className="hidden"
+              id="file-upload"
+              onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
+              disabled={!selectedCategory || isUploading}
+            />
+            <Button
+              variant="outline"
+              onClick={() => document.getElementById('file-upload')?.click()}
+              disabled={!selectedCategory || isUploading}
+            >
+              Selecionar Arquivos
+            </Button>
+          </>
+        )}
+      </div>
+
+      {selectedCategory && (
+        <div className="bg-muted/50 p-4 rounded-lg">
+          <h4 className="font-medium text-sm mb-2">Tipos aceitos para esta categoria:</h4>
+          <div className="flex flex-wrap gap-2">
+            {documentCategories.find(c => c.id === selectedCategory)?.acceptedTypes.map(type => (
+              <Badge key={type} variant="outline" className="text-xs">
+                .{type}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DocumentManager() {
+  const [documents, setDocuments] = useKV('client-documents', [] as ClientDocument[])
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState<'name' | 'date' | 'size'>('date')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
+
+  const handleDocumentUpload = (docData: Omit<ClientDocument, 'id' | 'uploadedAt'>) => {
+    const newDoc: ClientDocument = {
+      ...docData,
+      id: Date.now().toString(),
+      uploadedAt: new Date().toISOString()
+    }
+    setDocuments((prev) => [newDoc, ...prev])
+  }
+
+  const handleDocumentDelete = (docId: string) => {
+    setDocuments((prev) => prev.filter(doc => doc.id !== docId))
+    toast.success('Documento removido com sucesso!')
+  }
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
+  const getFileIcon = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase()
+    switch (extension) {
+      case 'pdf': return FilePdf
+      case 'doc':
+      case 'docx': return FileDoc
+      case 'xls':
+      case 'xlsx': return FileXls
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif': return FileImage
+      default: return FileText
+    }
+  }
+
+  const filteredDocuments = documents
+    .filter(doc => selectedCategory === 'all' || doc.category === selectedCategory)
+    .filter(doc => 
+      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name)
+        case 'size':
+          return b.size - a.size
+        case 'date':
+        default:
+          return new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+      }
+    })
+
+  return (
+    <div className="space-y-6">
+      {/* Upload Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <UploadSimple className="w-5 h-5" />
+            <span>Enviar Documentos</span>
+          </CardTitle>
+          <CardDescription>
+            Faça upload dos seus documentos para nossa equipe analisar
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DocumentUpload onUpload={handleDocumentUpload} />
+        </CardContent>
+      </Card>
+
+      {/* Management Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <FolderOpen className="w-5 h-5" />
+              <span>Meus Documentos ({documents.length})</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                Lista
+              </Button>
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+              >
+                Grade
+              </Button>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <Label>Pesquisar</Label>
+              <Input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar documentos..."
+              />
+            </div>
+            <div>
+              <Label>Categoria</Label>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as categorias</SelectItem>
+                  {documentCategories.map(cat => (
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Ordenar por</Label>
+              <Select value={sortBy} onValueChange={(value: 'name' | 'date' | 'size') => setSortBy(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date">Data de upload</SelectItem>
+                  <SelectItem value="name">Nome</SelectItem>
+                  <SelectItem value="size">Tamanho</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Documents List */}
+          {filteredDocuments.length === 0 ? (
+            <div className="text-center py-12">
+              <FolderOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                {documents.length === 0 ? 'Nenhum documento enviado ainda' : 'Nenhum documento encontrado'}
+              </p>
+            </div>
+          ) : (
+            <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-2'}>
+              {filteredDocuments.map((doc) => {
+                const FileIcon = getFileIcon(doc.name)
+                const categoryData = documentCategories.find(c => c.id === doc.category)
+                
+                if (viewMode === 'grid') {
+                  return (
+                    <Card key={doc.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <FileIcon className="w-5 h-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-sm truncate">{doc.name}</h4>
+                            <p className="text-xs text-muted-foreground">{formatFileSize(doc.size)}</p>
+                            <div className="flex items-center space-x-1 mt-1">
+                              <Badge variant="outline" className="text-xs">
+                                {categoryData?.name}
+                              </Badge>
+                            </div>
+                            {doc.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {doc.tags.slice(0, 2).map(tag => (
+                                  <Badge key={tag} variant="secondary" className="text-xs">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                                {doc.tags.length > 2 && (
+                                  <span className="text-xs text-muted-foreground">+{doc.tags.length - 2}</span>
+                                )}
+                              </div>
+                            )}
+                            <div className="flex items-center justify-between mt-3">
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(doc.uploadedAt).toLocaleDateString()}
+                              </span>
+                              <div className="flex space-x-1">
+                                <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                                  <Eye className="w-3 h-3" />
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                                  <Download className="w-3 h-3" />
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-destructive">
+                                      <Trash className="w-3 h-3" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Tem certeza que deseja excluir "{doc.name}"? Esta ação não pode ser desfeita.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDocumentDelete(doc.id)}>
+                                        Excluir
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                }
+
+                return (
+                  <Card key={doc.id} className="hover:shadow-sm transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FileIcon className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium truncate">{doc.name}</h4>
+                            <div className="flex items-center space-x-2">
+                              <Button size="sm" variant="ghost">
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost">
+                                <Download className="w-4 h-4" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button size="sm" variant="ghost" className="text-destructive">
+                                    <Trash className="w-4 h-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Tem certeza que deseja excluir "{doc.name}"? Esta ação não pode ser desfeita.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDocumentDelete(doc.id)}>
+                                      Excluir
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-4 mt-1 text-sm text-muted-foreground">
+                            <span>{formatFileSize(doc.size)}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {categoryData?.name}
+                            </Badge>
+                            <span className="flex items-center space-x-1">
+                              <CalendarBlank className="w-3 h-3" />
+                              <span>{new Date(doc.uploadedAt).toLocaleDateString()}</span>
+                            </span>
+                            <span className="flex items-center space-x-1">
+                              <User className="w-3 h-3" />
+                              <span>{doc.uploadedBy}</span>
+                            </span>
+                          </div>
+                          {doc.description && (
+                            <p className="text-sm text-muted-foreground mt-1 truncate">{doc.description}</p>
+                          )}
+                          {doc.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {doc.tags.map(tag => (
+                                <Badge key={tag} variant="secondary" className="text-xs">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 function ClientPortal() {
   const [leads] = useKV('leads', [] as Lead[])
+  const [documents] = useKV('client-documents', [] as ClientDocument[])
   
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline">Área do Cliente</Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Portal do Cliente</DialogTitle>
+          <DialogDescription>
+            Gerencie seus documentos e acompanhe o progresso dos seus serviços
+          </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="documents">Documentos</TabsTrigger>
+            <TabsTrigger value="upload">Upload</TabsTrigger>
             <TabsTrigger value="reports">Relatórios</TabsTrigger>
             <TabsTrigger value="leads">Leads</TabsTrigger>
           </TabsList>
           
           <TabsContent value="dashboard" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Documentos Pendentes</CardTitle>
+                  <CardTitle className="text-sm flex items-center space-x-2">
+                    <FileText className="w-4 h-4" />
+                    <span>Documentos Enviados</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-accent">3</div>
+                  <div className="text-2xl font-bold text-primary">{documents.length}</div>
+                  <p className="text-xs text-muted-foreground">Total de arquivos</p>
                 </CardContent>
               </Card>
               
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Última Atualização</CardTitle>
+                  <CardTitle className="text-sm flex items-center space-x-2">
+                    <Users className="w-4 h-4" />
+                    <span>Leads</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-primary">Hoje</div>
+                  <div className="text-2xl font-bold text-accent">{leads.length}</div>
+                  <p className="text-xs text-muted-foreground">Contatos recebidos</p>
                 </CardContent>
               </Card>
               
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Status</CardTitle>
+                  <CardTitle className="text-sm flex items-center space-x-2">
+                    <CalendarBlank className="w-4 h-4" />
+                    <span>Última Atualização</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-primary">
+                    {documents.length > 0 
+                      ? new Date(Math.max(...documents.map(d => new Date(d.uploadedAt).getTime()))).toLocaleDateString()
+                      : 'Nenhum'
+                    }
+                  </div>
+                  <p className="text-xs text-muted-foreground">Documento mais recente</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center space-x-2">
+                    <Shield className="w-4 h-4" />
+                    <span>Status</span>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Badge className="bg-green-100 text-green-800">Em dia</Badge>
+                  <p className="text-xs text-muted-foreground mt-1">Conta regularizada</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Documentos por Categoria</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {documentCategories.map(category => {
+                      const count = documents.filter(doc => doc.category === category.id).length
+                      return (
+                        <div key={category.id} className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <category.icon className="w-4 h-4 text-primary" />
+                            <span className="text-sm">{category.name}</span>
+                          </div>
+                          <Badge variant="outline">{count}</Badge>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Atividade Recente</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {documents.slice(0, 5).map(doc => (
+                      <div key={doc.id} className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <UploadSimple className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{doc.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(doc.uploadedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    {documents.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        Nenhuma atividade recente
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
           
           <TabsContent value="documents">
+            <DocumentManager />
+          </TabsContent>
+
+          <TabsContent value="upload">
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload de Documentos</CardTitle>
+                <CardDescription>
+                  Envie seus documentos de forma rápida e segura
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DocumentUpload onUpload={(docData) => {
+                  const newDoc: ClientDocument = {
+                    ...docData,
+                    id: Date.now().toString(),
+                    uploadedAt: new Date().toISOString()
+                  }
+                  // This would normally be handled by DocumentManager, but for standalone upload:
+                  // setDocuments((prev) => [newDoc, ...prev])
+                }} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="reports">
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Seus Documentos</h3>
-              <div className="space-y-2">
-                {['Balanço Dezembro 2024', 'DRE Novembro 2024', 'Relatório Fiscal'].map((doc, index) => (
-                  <Card key={index} className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <FileText className="w-5 h-5 text-primary" />
-                        <span>{doc}</span>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Relatórios Financeiros</h3>
+                <Button>
+                  <Download className="w-4 h-4 mr-2" />
+                  Baixar Todos
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[
+                  { name: 'Balanço Dezembro 2024', type: 'PDF', size: '245 KB', date: '15/12/2024' },
+                  { name: 'DRE Novembro 2024', type: 'Excel', size: '186 KB', date: '30/11/2024' },
+                  { name: 'Relatório Fiscal', type: 'PDF', size: '532 KB', date: '25/11/2024' },
+                  { name: 'Demonstrativo de Impostos', type: 'PDF', size: '298 KB', date: '20/11/2024' },
+                  { name: 'Balancete Outubro', type: 'Excel', size: '145 KB', date: '31/10/2024' },
+                  { name: 'Relatório de Folha', type: 'PDF', size: '367 KB', date: '28/10/2024' }
+                ].map((report, index) => (
+                  <Card key={index} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                          {report.type === 'PDF' ? 
+                            <FilePdf className="w-5 h-5 text-red-600" /> :
+                            <FileXls className="w-5 h-5 text-green-600" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm">{report.name}</h4>
+                          <p className="text-xs text-muted-foreground">{report.size} • {report.date}</p>
+                          <div className="flex space-x-2 mt-3">
+                            <Button size="sm" variant="outline" className="text-xs">
+                              <Eye className="w-3 h-3 mr-1" />
+                              Ver
+                            </Button>
+                            <Button size="sm" variant="outline" className="text-xs">
+                              <Download className="w-3 h-3 mr-1" />
+                              Download
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <Button size="sm" variant="outline">Download</Button>
-                    </div>
+                    </CardContent>
                   </Card>
                 ))}
               </div>
             </div>
           </TabsContent>
           
-          <TabsContent value="reports">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Relatórios Financeiros</h3>
-              <p className="text-muted-foreground">
-                Aqui você encontrará todos os relatórios gerados pela nossa equipe.
-              </p>
-            </div>
-          </TabsContent>
-          
           <TabsContent value="leads">
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Leads Recebidos ({leads.length})</h3>
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {leads.map((lead) => (
-                  <Card key={lead.id} className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-semibold">{lead.name}</h4>
-                        <p className="text-sm text-muted-foreground">{lead.email}</p>
-                        <p className="text-sm text-muted-foreground">{lead.company}</p>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Leads Recebidos ({leads.length})</h3>
+                <Button>
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar
+                </Button>
+              </div>
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {leads.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">Nenhum lead recebido ainda</p>
+                  </div>
+                ) : (
+                  leads.map((lead) => (
+                    <Card key={lead.id} className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h4 className="font-semibold">{lead.name}</h4>
+                            <Badge variant="outline" className="text-xs">
+                              {services.find(s => s.id === lead.service)?.name || 'Não especificado'}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                            <p className="flex items-center space-x-1">
+                              <Mail className="w-3 h-3" />
+                              <span>{lead.email}</span>
+                            </p>
+                            <p className="flex items-center space-x-1">
+                              <Phone className="w-3 h-3" />
+                              <span>{lead.phone}</span>
+                            </p>
+                            {lead.company && (
+                              <p className="flex items-center space-x-1">
+                                <Building2 className="w-3 h-3" />
+                                <span>{lead.company}</span>
+                              </p>
+                            )}
+                            <p className="flex items-center space-x-1">
+                              <CalendarBlank className="w-3 h-3" />
+                              <span>{new Date(lead.createdAt).toLocaleDateString()}</span>
+                            </p>
+                          </div>
+                          {lead.message && (
+                            <div className="mt-3 p-3 bg-muted/50 rounded-lg">
+                              <p className="text-sm">"{lead.message}"</p>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex space-x-2 ml-4">
+                          <Button size="sm" variant="outline">
+                            Responder
+                          </Button>
+                        </div>
                       </div>
-                      <Badge variant="outline">
-                        {new Date(lead.createdAt).toLocaleDateString()}
-                      </Badge>
-                    </div>
-                    {lead.message && (
-                      <p className="text-sm mt-2 text-muted-foreground">"{lead.message}"</p>
-                    )}
-                  </Card>
-                ))}
+                    </Card>
+                  ))
+                )}
               </div>
             </div>
           </TabsContent>
