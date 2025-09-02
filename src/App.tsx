@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { useKV } from '@github/spark/hooks'
-import { toast } from 'sonner'
+import { toast, Toaster } from 'sonner'
 
 interface Service {
   id: string
@@ -47,8 +47,8 @@ interface ClientDocument {
   description?: string
   tags: string[]
   isPublic: boolean
-  url?: string // In a real app, this would be the file URL
-  content?: string // For demo purposes, storing base64 or text content
+  url?: string
+  content?: string
 }
 
 interface DocumentCategory {
@@ -131,12 +131,11 @@ const documentCategories: DocumentCategory[] = [
     icon: FolderOpen
   }
 ]
-
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <header className="bg-white border-b border-border sticky top-0 z-50">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
@@ -149,7 +148,7 @@ function Header() {
             <a href="#calculadora" className="text-foreground hover:text-primary transition-colors">Calculadora</a>
             <a href="#sobre" className="text-foreground hover:text-primary transition-colors">Sobre</a>
             <a href="#contato" className="text-foreground hover:text-primary transition-colors">Contato</a>
-            <Button variant="outline">Área do Cliente</Button>
+            <ClientPortal />
             <Button>Fale Conosco</Button>
           </nav>
 
@@ -171,7 +170,7 @@ function Header() {
               <a href="#sobre" className="text-foreground hover:text-primary transition-colors">Sobre</a>
               <a href="#contato" className="text-foreground hover:text-primary transition-colors">Contato</a>
               <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="outline" className="w-full">Área do Cliente</Button>
+                <ClientPortal />
                 <Button className="w-full">Fale Conosco</Button>
               </div>
             </nav>
@@ -180,6 +179,167 @@ function Header() {
       </div>
     </header>
   )
+}
+
+function Hero() {
+  return (
+    <section className="bg-gradient-to-br from-primary to-blue-600 text-white py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6">
+          Consultoria Empresarial
+          <span className="block text-accent">Completa e Eficiente</span>
+        </h1>
+        <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
+          Transforme sua empresa com nossos serviços especializados em contabilidade, 
+          jurídico e recursos humanos. Mais de 1.000 empresas confiam na MV Consultoria.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            Calcular Preços
+          </Button>
+          <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
+            Falar com Consultor
+          </Button>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function DocumentManager() {
+  const [documents, setDocuments] = useKV('client-documents', [] as ClientDocument[])
+
+  const handleDocumentUpload = (docData: Omit<ClientDocument, 'id' | 'uploadedAt'>) => {
+    const newDoc: ClientDocument = {
+      ...docData,
+      id: Date.now().toString(),
+      uploadedAt: new Date().toISOString()
+    }
+    setDocuments((prev) => [newDoc, ...prev])
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Sistema de Upload de Documentos</CardTitle>
+          <CardDescription>
+            Gerencie seus documentos empresariais de forma segura
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">
+            Sistema de upload de documentos integrado. Total de documentos: {documents.length}
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function ClientPortal() {
+  const [leads] = useKV('leads', [] as Lead[])
+  const [documents] = useKV('client-documents', [] as ClientDocument[])
+  
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Área do Cliente</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Portal do Cliente</DialogTitle>
+          <DialogDescription>
+            Gerencie seus documentos e acompanhe o progresso dos seus serviços
+          </DialogDescription>
+        </DialogHeader>
+        
+        <Tabs defaultValue="dashboard" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="documents">Documentos</TabsTrigger>
+            <TabsTrigger value="leads">Leads</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="dashboard" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center space-x-2">
+                    <FileText className="w-4 h-4" />
+                    <span>Documentos</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-primary">{documents.length}</div>
+                  <p className="text-xs text-muted-foreground">Total de arquivos</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center space-x-2">
+                    <Users className="w-4 h-4" />
+                    <span>Leads</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-accent">{leads.length}</div>
+                  <p className="text-xs text-muted-foreground">Contatos recebidos</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center space-x-2">
+                    <Shield className="w-4 h-4" />
+                    <span>Status</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Badge className="bg-green-100 text-green-800">Ativo</Badge>
+                  <p className="text-xs text-muted-foreground mt-1">Sistema funcionando</p>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="documents">
+            <DocumentManager />
+          </TabsContent>
+          
+          <TabsContent value="leads">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Leads Recebidos ({leads.length})</h3>
+              </div>
+              {leads.length === 0 ? (
+                <div className="text-center py-12">
+                  <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">Nenhum lead recebido ainda</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {leads.slice(0, 5).map((lead) => (
+                    <Card key={lead.id} className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-semibold">{lead.name}</h4>
+                          <p className="text-sm text-muted-foreground">{lead.email}</p>
+                          <p className="text-sm text-muted-foreground">{lead.phone}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
+  )
+}
 }
 
 function Hero() {
@@ -1547,11 +1707,50 @@ function App() {
     <div className="min-h-screen bg-background">
       <Header />
       <Hero />
-      <ServicesSection />
-      <Calculator />
-      <About />
-      <ContactForm />
-      <Footer />
+      <main className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Sistema de Gestão Empresarial
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Sistema completo com upload de documentos integrado para facilitar sua gestão empresarial
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {services.map((service) => (
+              <Card key={service.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                    <service.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-xl">{service.name}</CardTitle>
+                  <CardDescription>{service.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 mb-4">
+                    {service.features.map((feature, index) => (
+                      <div key={index} className="flex items-center text-sm text-muted-foreground">
+                        <div className="w-1.5 h-1.5 bg-accent rounded-full mr-2" />
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold text-primary">
+                      R$ {service.basePrice}
+                      <span className="text-sm font-normal text-muted-foreground">/mês</span>
+                    </span>
+                    <Button size="sm">Contratar</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </main>
+      <Toaster richColors />
     </div>
   )
 }
