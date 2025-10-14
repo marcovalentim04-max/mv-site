@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Buildings, Phone, Envelope, Calculator as CalculatorIcon, FileText, Users, Shield, CaretDown, List, X, UploadSimple, Trash, Download, Eye, FolderOpen, Calendar, User, FilePdf, FileDoc, FileXls, FileImage } from '@phosphor-icons/react'
+import { Calculator as CalcIcon, Scale, UsersRound, Building2, BriefcaseBusiness, BarChart3 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -12,9 +13,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { useKV } from '@github/spark/hooks'
 import { toast, Toaster } from 'sonner'
-
+import Formulario from "@/components/ui/formulario.tsx"
+import {useEffect } from "react";
+import OpenCompanyForm from "@/components/ui/formulario";
+import { motion } from "framer-motion"; // animações
 interface Service {
   id: string
   name: string
@@ -87,7 +90,7 @@ const services: Service[] = [
     name: 'Contabilidade Completa',
     description: 'Gestão contábil completa com relatórios mensais e certificado digital incluso',
     basePrice: 195,
-    icon: CalculatorIcon,
+    icon: CalcIcon,
     features: ['Balanços mensais', 'DRE', 'Relatórios fiscais', 'Certificado digital', 'Suporte especializado']
   },
   {
@@ -95,7 +98,7 @@ const services: Service[] = [
     name: 'Consultoria Jurídica',
     description: 'Assessoria jurídica empresarial completa com análise de contratos',
     basePrice: 299,
-    icon: Shield,
+    icon: Scale,
     features: ['Análise de contratos', 'Consultoria trabalhista', 'Assessoria tributária', 'Defesa fiscal', 'Atendimento presencial']
   },
   {
@@ -103,7 +106,7 @@ const services: Service[] = [
     name: 'Gestão de RH',
     description: 'Departamento pessoal completo com folha de pagamento e eSocial',
     basePrice: 149,
-    icon: Users,
+    icon: UsersRound,
     features: ['Folha de pagamento', 'Admissões e demissões', 'Férias e 13º', 'eSocial', 'Pró-labore']
   },
   {
@@ -111,7 +114,7 @@ const services: Service[] = [
     name: 'Abertura de Empresa GRÁTIS',
     description: 'Processo completo de abertura da sua empresa sem custo inicial',
     basePrice: 0,
-    icon: Buildings,
+    icon: Building2,
     features: ['Registro na Junta Comercial', 'CNPJ', 'Licenças municipais', 'Alvará de funcionamento', 'Primeira consulta gratuita']
   },
   {
@@ -119,7 +122,7 @@ const services: Service[] = [
     name: 'Desenquadramento MEI',
     description: 'Transição gratuita do MEI para outros regimes tributários',
     basePrice: 0,
-    icon: FileText,
+    icon: BriefcaseBusiness,
     features: ['Análise do perfil atual', 'Processo gratuito', 'Orientação completa', 'Suporte especializado']
   },
   {
@@ -127,7 +130,7 @@ const services: Service[] = [
     name: 'Gestão Fiscal',
     description: 'Controle completo de impostos e obrigações fiscais',
     basePrice: 120,
-    icon: Shield,
+    icon: BarChart3,
     features: ['Cálculo de impostos', 'Emissão de guias', 'Declarações obrigatórias', 'Otimização tributária']
   }
 ]
@@ -283,45 +286,116 @@ function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-gradient-to-r from-[#0a0f2b] to-[#1a2a4f] sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-2">
-            <Buildings className="h-8 w-8 text-primary" weight="bold" />
-            <span className="text-xl font-bold text-primary">MV Consultoria</span>
+          
+          {/* Logo e nome da empresa */}
+          <div className="flex items-center space-x-3">
+            <img
+              src="imgs/LogoMV.jpg"
+              alt="Logo MV Consultoria"
+              className="h-15 w-15 object-contain rounded-sm"
+            />
+            <span className="text-xl font-bold text-[#d4af37]">
+              MV Consultoria
+            </span>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="#servicos" className="text-foreground hover:text-primary transition-colors">Serviços</a>
-            <a href="#planos" className="text-foreground hover:text-primary transition-colors">Planos</a>
-            <a href="#calculadora" className="text-foreground hover:text-primary transition-colors">Calculadora</a>
-            <a href="#sobre" className="text-foreground hover:text-primary transition-colors">Sobre</a>
-            <a href="#contato" className="text-foreground hover:text-primary transition-colors">Contato</a>
+          {/* Navegação desktop */}
+          <nav className="hidden md:flex items-center space-x-8 bg-gradient-to-r from-[#0a0f2b] to-[#1a2a4f] p-3 rounded-xl shadow-lg border border-[#d4af37]/30">
+            <a
+              href="#servicos"
+              className="text-[#d4af37] hover:text-[#f1c85c] font-medium transition-colors"
+            >
+              Serviços
+            </a>
+            <a
+              href="#planos"
+              className="text-[#d4af37] hover:text-[#f1c85c] font-medium transition-colors"
+            >
+              Planos
+            </a>
+            <a
+              href="#calculadora"
+              className="text-[#d4af37] hover:text-[#f1c85c] font-medium transition-colors"
+            >
+              Calculadora
+            </a>
+            <a
+              href="#sobre"
+              className="text-[#d4af37] hover:text-[#f1c85c] font-medium transition-colors"
+            >
+              Sobre
+            </a>
+            <a
+              href="#contato"
+              className="text-[#d4af37] hover:text-[#f1c85c] font-medium transition-colors"
+            >
+              Contato
+            </a>
+
             <ClientPortal />
-            <Button>Fale Conosco</Button>
+
+            <Button
+              onClick={() => window.open("https://wa.me/5517999796013")}
+              className="bg-[#d4af37] hover:bg-[#f1c85c] text-[#0a0f2b] font-semibold rounded-full px-5 py-2 transition-colors"
+            >
+              Fale Conosco
+            </Button>
           </nav>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X /> : <List />}
-          </Button>
+          {/* Botão menu mobile */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-[#d4af37] focus:outline-none"
+            >
+              {isMenuOpen ? "✕" : "☰"}
+            </button>
+          </div>
         </div>
 
+        {/* Menu mobile */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border">
-            <nav className="flex flex-col space-y-4">
-              <a href="#servicos" className="text-foreground hover:text-primary transition-colors">Serviços</a>
-              <a href="#calculadora" className="text-foreground hover:text-primary transition-colors">Calculadora</a>
-              <a href="#sobre" className="text-foreground hover:text-primary transition-colors">Sobre</a>
-              <a href="#contato" className="text-foreground hover:text-primary transition-colors">Contato</a>
-              <div className="flex flex-col space-y-2 pt-4">
-                <ClientPortal />
-                <Button className="w-full">Fale Conosco</Button>
-              </div>
+          <div className="md:hidden bg-[#0a0f2b] border-t border-[#d4af37]/30 mt-2 rounded-lg shadow-lg">
+            <nav className="flex flex-col space-y-2 p-4">
+              <a
+                href="#servicos"
+                className="text-[#d4af37] hover:text-[#f1c85c] font-medium transition-colors"
+              >
+                Serviços
+              </a>
+              <a
+                href="#planos"
+                className="text-[#d4af37] hover:text-[#f1c85c] font-medium transition-colors"
+              >
+                Planos
+              </a>
+              <a
+                href="#calculadora"
+                className="text-[#d4af37] hover:text-[#f1c85c] font-medium transition-colors"
+              >
+                Calculadora
+              </a>
+              <a
+                href="#sobre"
+                className="text-[#d4af37] hover:text-[#f1c85c] font-medium transition-colors"
+              >
+                Sobre
+              </a>
+              <a
+                href="#contato"
+                className="text-[#d4af37] hover:text-[#f1c85c] font-medium transition-colors"
+              >
+                Contato
+              </a>
+              <Button
+                onClick={() => window.open("https://wa.me/5517999796013")}
+                className="bg-[#d4af37] hover:bg-[#f1c85c] text-[#0a0f2b] font-semibold rounded-full px-5 py-2 transition-colors mt-2"
+              >
+                Fale Conosco
+              </Button>
             </nav>
           </div>
         )}
@@ -330,51 +404,107 @@ function Header() {
   )
 }
 
+
+const HighlightItem = ({ text, delay = 0 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 5 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.4 }}
+    className="flex items-center gap-2 text-sm text-[#f5e9c9] bg-[#1a2a4f]/20 px-3 py-1 rounded-md shadow-sm"
+  >
+    <span className="text-[#f1c85c] font-semibold">✓</span>
+    <span>{text}</span>
+  </motion.div>
+);
+
 function Hero() {
+  const [showForm, setShowForm] = useState(false);
+
+  const highlights = [
+    "Abertura GRÁTIS",
+    "Atendimento Presencial",
+    "Jurídico + Contábil",
+    "Primeira Consulta Grátis",
+  ];
+
   return (
-    <section className="bg-gradient-to-br from-primary to-blue-600 text-white py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6">
-          Da abertura do CNPJ até a consultoria completa,
-          <span className="block text-accent">conte com a MV Consultoria</span>
-        </h1>
-        <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-4xl mx-auto">
-          Escritório de consultoria empresarial com atendimento presencial e personalizado. 
-          Abertura de empresa GRÁTIS + Consultoria jurídica integrada.
-        </p>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 max-w-3xl mx-auto text-sm">
-          <div className="flex items-center justify-center space-x-2">
-            <span>✓</span>
-            <span>Abertura GRÁTIS</span>
-          </div>
-          <div className="flex items-center justify-center space-x-2">
-            <span>✓</span>
-            <span>Atendimento Presencial</span>
-          </div>
-          <div className="flex items-center justify-center space-x-2">
-            <span>✓</span>
-            <span>Jurídico + Contábil</span>
-          </div>
-          <div className="flex items-center justify-center space-x-2">
-            <span>✓</span>
-            <span>Primeira Consulta Grátis</span>
-          </div>
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#0a0f2b] to-[#1a2a4f] text-[#d4af37] py-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center space-y-6 text-center">
+
+        {/* Título */}
+        <motion.h1
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-3xl md:text-4xl font-bold leading-snug"
+        >
+          Da abertura do CNPJ até a consultoria completa,  
+          <span className="block text-[#f1c85c] mt-1">conte com a MV Consultoria</span>
+        </motion.h1>
+
+        {/* Descrição */}
+        <motion.p
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="text-base md:text-lg text-[#f5e9c9] leading-relaxed max-w-lg"
+        >
+          Escritório de consultoria empresarial com atendimento presencial e personalizado. <br />
+          Abertura de empresa <strong>GRÁTIS</strong> + Consultoria jurídica integrada.
+        </motion.p>
+
+        {/* Destaques */}
+        <div className="flex flex-wrap justify-center gap-3 mt-4">
+          {highlights.map((item, idx) => (
+            <HighlightItem key={idx} text={item} delay={0.2 + idx * 0.1} />
+          ))}
         </div>
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-4 text-lg">
+
+        {/* Botões */}
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="flex flex-col sm:flex-row gap-3 mt-6 justify-center w-full"
+        >
+          <Button
+            
+            className="bg-[#d4af37] hover:bg-[#f1c85c] text-[#0a0f2b] font-semibold px-6 py-3 rounded-full shadow-md transition-all transform hover:scale-105"
+            onClick={() => setShowForm(true)}
+          >
             Abrir Empresa Grátis
           </Button>
-          <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary px-8 py-4 text-lg">
+
+          <Button
+            
+            variant="outline"
+            className="border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-[#0a0f2b] px-6 py-3 rounded-full transition-all transform hover:scale-105"
+            onClick={() => window.open('https://wa.me/5517999796013')}
+          >
             Primeira Consulta Grátis
           </Button>
-        </div>
-      </div>
-    </section>
-  )
-}
+        </motion.div>
 
+        {/* Imagem opcional */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
+          className="w-48 mt-4"
+        >
+         {/* <img
+            src="/imgs/LogoMV.jpg"
+            alt="Consultoria Empresarial"
+            className="w-full rounded-lg shadow-lg"
+          /> */}
+        </motion.div>
+      </div>
+
+      {/* Modal do formulário */}
+      {showForm && <OpenCompanyForm onClose={() => setShowForm(false)} />}
+    </section>
+  );
+}
 function PlansSection() {
   return (
     <section id="planos" className="py-20 bg-white">
@@ -433,7 +563,7 @@ function PlansSection() {
                 <div className="pt-6">
                   <Button 
                     className={`w-full ${plan.popular ? 'bg-accent hover:bg-accent/90' : ''}`}
-                    size="lg"
+                    size="lg" onClick={() => window.open("https://wa.me/5517999796013") }
                   >
                     Contratar Plano
                   </Button>
@@ -447,7 +577,7 @@ function PlansSection() {
           <p className="text-sm text-muted-foreground mb-4">
             Precisa de algo personalizado? Temos soluções sob medida.
           </p>
-          <Button variant="outline" size="lg">
+          <Button variant="outline" size="lg" onClick={() => window.open("https://wa.me/5517999796013")}>
             Falar com Especialista
           </Button>
         </div>
@@ -458,42 +588,42 @@ function PlansSection() {
 
 function ServicesSection() {
   return (
-    <section id="servicos" className="py-20 bg-secondary/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+    <section id="servicos" className="py-12 bg-secondary/50 min-h-screen flex items-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
             Nossos Serviços
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Soluções completas para impulsionar o crescimento da sua empresa
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+            Soluções completas para o crescimento da sua empresa
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {services.map((service) => (
-            <Card key={service.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <service.icon className="w-6 h-6 text-primary" />
+            <Card key={service.id} className="hover:shadow-lg transition-shadow cursor-pointer flex flex-col h-full">
+              <CardHeader className="flex-shrink-0 pb-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mb-2">
+                  <service.icon className="w-5 h-5 text-primary" />
                 </div>
-                <CardTitle className="text-xl">{service.name}</CardTitle>
-                <CardDescription>{service.description}</CardDescription>
+                <CardTitle className="text-base font-bold leading-tight">{service.name}</CardTitle>
+                <CardDescription className="text-xs line-clamp-2">{service.description}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2 mb-4">
-                  {service.features.map((feature, index) => (
-                    <div key={index} className="flex items-center text-sm text-muted-foreground">
-                      <div className="w-1.5 h-1.5 bg-accent rounded-full mr-2" />
-                      {feature}
+              <CardContent className="flex-grow flex flex-col justify-between pt-0 pb-3">
+                <div className="space-y-1 mb-3">
+                  {service.features.slice(0, 3).map((feature, index) => (
+                    <div key={index} className="flex items-start text-xs text-muted-foreground">
+                      <div className="w-1 h-1 bg-accent rounded-full mr-2 flex-shrink-0 mt-1.5" />
+                      <span className="line-clamp-1">{feature}</span>
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-primary">
+                <div className="flex items-center justify-between mt-auto">
+                  <span className="text-lg font-bold text-primary">
                     R$ {service.basePrice}
-                    <span className="text-sm font-normal text-muted-foreground">/mês</span>
+                    <span className="text-xs font-normal text-muted-foreground">/mês</span>
                   </span>
-                  <Button size="sm">Contratar</Button>
+                  <Button size="sm" className="text-xs px-3 py-1 h-7" onClick={() => window.open("https://wa.me/5517999796013") }>Contratar</Button>
                 </div>
               </CardContent>
             </Card>
@@ -628,7 +758,8 @@ function Calculator() {
                 </CardHeader>
                 <CardContent className="text-center">
                   <div className="text-4xl font-bold text-primary mb-4">
-                    R$ {calculationResult.total}
+                    R$ {calculationResult.total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
                     <span className="text-lg font-normal text-muted-foreground">/mês</span>
                   </div>
                   <p className="text-muted-foreground mb-6">
@@ -645,265 +776,111 @@ function Calculator() {
   )
 }
 
+
+
 function ContactForm() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    service: '',
-    message: ''
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    service: "",
+    message: "",
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const newLead: Lead = {
       id: Date.now().toString(),
       ...formData,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     }
 
     setLeads((prevLeads) => [newLead, ...prevLeads])
-    
     setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      company: '',
-      service: '',
-      message: ''
+      name: "",
+      email: "",
+      phone: "",
+      company: "",
+      service: "",
+      message: "",
     })
 
-    toast.success('Mensagem enviada com sucesso! Entraremos em contato em breve.')
+    toast.success("Mensagem enviada com sucesso! Entraremos em contato em breve.")
   }
 
   return (
     <section id="contato" className="py-20 bg-secondary/50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Entre em Contato
           </h2>
           <p className="text-lg text-muted-foreground">
-            Fale com nossos especialistas e descubra como podemos ajudar sua empresa
+            Fale conosco ou venha nos visitar pessoalmente!
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <Card className="p-8">
-            <CardHeader>
-              <CardTitle>Fale Conosco</CardTitle>
-              <CardDescription>
-                Preencha o formulário e receba uma proposta personalizada
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Nome *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      required
-                    />
-                  </div>
-                </div>
+        <Card className="p-8 shadow-xl">
+          <CardHeader>
+            <CardTitle>Localização e Contato</CardTitle>
+            <CardDescription>
+              Veja onde estamos e fale com a nossa equipe
+            </CardDescription>
+          </CardHeader>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="phone">Telefone *</Label>
-                    <Input
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="company">Empresa</Label>
-                    <Input
-                      id="company"
-                      value={formData.company}
-                      onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                    />
-                  </div>
-                </div>
+          <CardContent className="space-y-6">
+            {/* Google Maps */}
+            <div className="aspect-video rounded-xl overflow-hidden shadow-md">
+              <iframe
+                title="Localização MV Consultoria"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d393.2740210202725!2d-48.311122583807496!3d-20.32202347865869!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94bb0976e8213efb%3A0xb035d12c2cf01791!2sMv%20consultoria!5e0!3m2!1spt-BR!2sbr!4v1760459647835!5m2!1spt-BR!2sbr"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
 
-                <div>
-                  <Label htmlFor="service">Serviço de Interesse</Label>
-                  <Select value={formData.service} onValueChange={(value) => setFormData(prev => ({ ...prev, service: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um serviço" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {services.map((service) => (
-                        <SelectItem key={service.id} value={service.id}>
-                          {service.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="message">Mensagem</Label>
-                  <Textarea
-                    id="message"
-                    rows={4}
-                    value={formData.message}
-                    onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                    placeholder="Conte-nos mais sobre suas necessidades..."
-                  />
-                </div>
-
-                <Button type="submit" className="w-full">
-                  Enviar Mensagem
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          <div className="space-y-6">
-            <Card className="p-6">
-              <div className="flex items-start space-x-4">
-                <Phone className="w-6 h-6 text-primary mt-1" />
-                <div>
-                  <h4 className="font-semibold text-foreground">Telefone</h4>
-                  <p className="text-muted-foreground">(11) 99999-9999</p>
-                  <p className="text-muted-foreground">(11) 3333-3333</p>
-                </div>
+            {/* Informações de contato */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-700">
+              <div>
+                <p><strong>Telefone Fixo:</strong> (17) 3332-0304</p>
+                <p><strong>Celular:</strong> (17) 99979-6013</p>
+                <p><strong>E-mail:</strong> contato@mvconsultoria.com.br</p>
               </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-start space-x-4">
-                <Envelope className="w-6 h-6 text-primary mt-1" />
-                <div>
-                  <h4 className="font-semibold text-foreground">Email</h4>
-                  <p className="text-muted-foreground">contato@mvconsultoria.com.br</p>
-                  <p className="text-muted-foreground">comercial@mvconsultoria.com.br</p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-start space-x-4">
-                <Buildings className="w-6 h-6 text-primary mt-1" />
-                <div>
-                  <h4 className="font-semibold text-foreground">Endereço</h4>
-                  <p className="text-muted-foreground">
-                    Rua da Consultoria, 123<br />
-                    Centro - São Paulo/SP<br />
-                    CEP: 01000-000
-                  </p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-primary text-primary-foreground">
-              <h4 className="font-semibold mb-2">Horário de Atendimento</h4>
-              <p className="text-sm opacity-90">
-                Segunda a Sexta: 8h às 18h<br />
-                Sábado: 8h às 12h<br />
-                Domingo: Fechado
-              </p>
-            </Card>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function MEISection() {
-  return (
-    <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Sua empresa precisa deixar de ser MEI?
-            </h2>
-            <p className="text-lg text-muted-foreground mb-6">
-              Você não precisa esperar ultrapassar o limite de faturamento. Temos especialistas 
-              prontos para analisar o perfil atual do seu MEI e explicar todo o processo.
-            </p>
-            
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                  <span className="text-green-600 text-sm">✓</span>
-                </div>
-                <span className="text-foreground">Análise gratuita do seu perfil MEI</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                  <span className="text-green-600 text-sm">✓</span>
-                </div>
-                <span className="text-foreground">Processo de desenquadramento sem custo</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                  <span className="text-green-600 text-sm">✓</span>
-                </div>
-                <span className="text-foreground">Orientação sobre a melhor opção tributária</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                  <span className="text-green-600 text-sm">✓</span>
-                </div>
-                <span className="text-foreground">Suporte completo durante a transição</span>
+              <div>
+                <p><strong>Endereço:</strong> Av 15 Entre Rua 10 e 8, 382</p>
+                <p>Centro - Guaíra/SP</p>
+                <p>CEP: 14790-000</p>
+                <p><strong>Horário:</strong> Seg. a Sex. 8h às 18h</p>
               </div>
             </div>
 
-            <Button size="lg" className="bg-accent hover:bg-accent/90">
-              Deixar de ser MEI Gratuitamente
+            {/* Botão para abrir no Google Maps */}
+            <Button
+              asChild
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-medium"
+            >
+              <a
+                href="https://www.google.com/maps/place/Av+15,+Gua%C3%ADra+-+SP,+14790-000/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ver no Google Maps
+              </a>
             </Button>
-          </div>
-
-          <div className="bg-white p-8 rounded-2xl shadow-lg">
-            <div className="text-center mb-6">
-              <div className="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
-                <Buildings className="w-10 h-10 text-accent-foreground" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">
-                Especialista MV Consultoria
-              </h3>
-              <p className="text-muted-foreground">
-                Pronto para ajudar na sua transição
-              </p>
-            </div>
-
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h4 className="font-semibold text-foreground mb-3">Quando deixar de ser MEI:</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• Faturamento próximo a R$ 81.000/ano</li>
-                <li>• Necessidade de sócios na empresa</li>
-                <li>• Exercer atividade não permitida no MEI</li>
-                <li>• Buscar crescimento empresarial</li>
-                <li>• Necessidade de emitir notas para PJ</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </section>
   )
 }
+
 
 function StatsSection() {
   return (
@@ -988,9 +965,7 @@ function ProcessSection() {
         </div>
 
         <div className="text-center mt-12">
-          <Button size="lg" className="bg-accent hover:bg-accent/90 px-8 py-4 text-lg">
-            Quero Abrir Minha Empresa Grátis
-          </Button>
+          
           <p className="text-sm text-muted-foreground mt-4">
             ✓ Processo 100% gratuito &nbsp;&nbsp;|&nbsp;&nbsp; ✓ Primeira consulta sem custo &nbsp;&nbsp;|&nbsp;&nbsp; ✓ Suporte completo
           </p>
@@ -1001,6 +976,8 @@ function ProcessSection() {
 }
 
 function TestimonialsSection() {
+  const [showForm, setShowForm] = useState(false);
+
   return (
     <section className="py-20 bg-secondary/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1055,14 +1032,13 @@ function TestimonialsSection() {
           <p className="text-muted-foreground mb-6">
             Junte-se a mais de 500+ empresas que confiam na MV Consultoria
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-accent hover:bg-accent/90">
-              Abrir Empresa Grátis
-            </Button>
-            <Button size="lg" variant="outline">
-              Primeira Consulta Grátis
-            </Button>
-          </div>
+       
+          {showForm && (
+            <div className="mt-8">
+               <Formulario onClose={() => setShowForm(false)}/>
+             </div>
+)}
+
         </div>
       </div>
     </section>
@@ -1277,7 +1253,7 @@ function DocumentUpload({ onUpload, category }: { onUpload: (doc: Omit<ClientDoc
         <div>
           <Label htmlFor="category">Categoria do Documento *</Label>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger>
+            <SelectTrigger className='mt-5'>
               <SelectValue placeholder="Selecione a categoria" />
             </SelectTrigger>
             <SelectContent>
@@ -1295,7 +1271,7 @@ function DocumentUpload({ onUpload, category }: { onUpload: (doc: Omit<ClientDoc
 
         <div>
           <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
-          <Input
+          <Input className='mt-2'
             id="tags"
             value={tags}
             onChange={(e) => setTags(e.target.value)}
@@ -1306,7 +1282,7 @@ function DocumentUpload({ onUpload, category }: { onUpload: (doc: Omit<ClientDoc
 
       <div>
         <Label htmlFor="description">Descrição (opcional)</Label>
-        <Textarea
+        <Textarea className='mt-2'
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -1494,16 +1470,16 @@ function DocumentManager() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label>Pesquisar</Label>
-              <Input
+              <Input className="mt-1 w-full min-w-[100px]" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar documentos..."
               />
             </div>
-            <div>
+            <div  className='ml-1'>
               <Label>Categoria</Label>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger>
+                <SelectTrigger className="mt-1 w-full min-w-[150px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1515,9 +1491,9 @@ function DocumentManager() {
               </Select>
             </div>
             <div>
-              <Label>Ordenar por</Label>
+              <Label  className='ml-15'>Ordenar</Label>
               <Select value={sortBy} onValueChange={(value: 'name' | 'date' | 'size') => setSortBy(value)}>
-                <SelectTrigger>
+                <SelectTrigger className="mt-1 w-full min-w-[100px] ml-15">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1695,20 +1671,24 @@ function DocumentManager() {
 function ClientPortal() {
   const [leads] = useState<Lead[]>([])
   const [documents] = useState<ClientDocument[]>([])
-  
+
+  const cardBase =
+    "group relative w-[150px] h-[200px] hover:w-[250px] hover:h-[300px] transition-all duration-300 ease-in-out flex flex-col justify-between items-start p-4 rounded-2xl shadow-sm hover:shadow-lg bg-card hover:bg-accent/10"
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline">Área do Cliente</Button>
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Portal do Cliente</DialogTitle>
           <DialogDescription>
             Gerencie seus documentos e acompanhe o progresso dos seus serviços
           </DialogDescription>
         </DialogHeader>
-        
+
         <Tabs defaultValue="dashboard" className="w-full">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
@@ -1717,120 +1697,146 @@ function ClientPortal() {
             <TabsTrigger value="reports">Relatórios</TabsTrigger>
             <TabsTrigger value="leads">Leads</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="dashboard" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center space-x-2">
-                    <FileText className="w-4 h-4" />
-                    <span>Documentos Enviados</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-primary">{documents.length}</div>
-                  <p className="text-xs text-muted-foreground">Total de arquivos</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center space-x-2">
-                    <Users className="w-4 h-4" />
-                    <span>Leads</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-accent">{leads.length}</div>
-                  <p className="text-xs text-muted-foreground">Contatos recebidos</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center space-x-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>Última Atualização</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-primary">
-                    {documents.length > 0 
-                      ? new Date(Math.max(...documents.map(d => new Date(d.uploadedAt).getTime()))).toLocaleDateString()
-                      : 'Nenhum'
-                    }
+
+          {/* --- DASHBOARD --- */}
+          <TabsContent value="dashboard" className="space-y-6">
+            <div className="flex flex-wrap justify-center gap-6">
+              {/* Documentos Enviados */}
+              <Card className={cardBase}>
+                <div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FileText className="w-5 h-5 text-primary" />
+                    <h4 className="text-sm font-semibold">Documentos Enviados</h4>
                   </div>
-                  <p className="text-xs text-muted-foreground">Documento mais recente</p>
-                </CardContent>
+                  <div className="text-3xl font-bold text-primary">
+                    {documents.length}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Total de arquivos enviados
+                  </p>
+                </div>
+
+                <Button variant="outline" size="sm" className="absolute bottom-4 left-4 group-hover:scale-110 transition">
+                  <Eye className="w-4 h-4 mr-1" /> Ver Detalhes
+                </Button>
               </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center space-x-2">
-                    <Shield className="w-4 h-4" />
-                    <span>Status</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Badge className="bg-green-100 text-green-800">Em dia</Badge>
-                  <p className="text-xs text-muted-foreground mt-1">Conta regularizada</p>
-                </CardContent>
+
+              {/* Leads */}
+              <Card className={cardBase}>
+                <div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Users className="w-5 h-5 text-accent" />
+                    <h4 className="text-sm font-semibold">Leads Recebidos</h4>
+                  </div>
+                  <div className="text-3xl font-bold text-accent">{leads.length}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Contatos cadastrados
+                  </p>
+                </div>
+
+                <Button variant="outline" size="sm" className="absolute bottom-4 left-4 group-hover:scale-110 transition">
+                  <Eye className="w-4 h-4 mr-1" /> Ver Leads
+                </Button>
+              </Card>
+
+              {/* Última Atualização */}
+              <Card className={cardBase}>
+                <div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    <h4 className="text-sm font-semibold">Última Atualização</h4>
+                  </div>
+                  <div className="text-2xl font-bold">
+                    {documents.length > 0
+                      ? new Date(Math.max(...documents.map(d => new Date(d.uploadedAt).getTime()))).toLocaleDateString()
+                      : "Nenhum"}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Documento mais recente
+                  </p>
+                </div>
+
+                <Button variant="outline" size="sm" className="absolute bottom-4 left-4 group-hover:scale-110 transition">
+                  <Calendar className="w-4 h-4 mr-1" /> Atualizar
+                </Button>
+              </Card>
+
+              {/* Status */}
+              <Card className={cardBase}>
+                <div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Shield className="w-5 h-5 text-green-600" />
+                    <h4 className="text-sm font-semibold">Status da Conta</h4>
+                  </div>
+                  <Badge className="bg-green-100 text-green-800 text-xs">Em dia</Badge>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Conta regularizada
+                  </p>
+                </div>
+
+                <Button variant="outline" size="sm" className="absolute bottom-4 left-4 group-hover:scale-110 transition">
+                  <Eye className="w-4 h-4 mr-1" /> Ver Status
+                </Button>
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Documentos por Categoria</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
+            {/* --- Seção inferior --- */}
+            <div className="flex flex-wrap justify-center gap-6">
+              {/* Documentos por Categoria */}
+              <Card className="group relative w-[165px] h-[250px] hover:w-[250px] hover:h-[300px] transition-all duration-300 ease-in-out flex flex-col justify-between items-start p-4 rounded-2xl shadow-md">
+                <div>
+                  <h4 className="text-sm font-semibold mb-3 flex items-center space-x-2">
+                    <FileText className="w-5 h-5 text-primary" />
+                    <span>Documentos por Categoria</span>
+                  </h4>
+                  <div className="space-y-2 overflow-y-auto max-h-[140px] pr-1">
                     {documentCategories.map(category => {
                       const count = documents.filter(doc => doc.category === category.id).length
                       return (
-                        <div key={category.id} className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <category.icon className="w-4 h-4 text-primary" />
-                            <span className="text-sm">{category.name}</span>
-                          </div>
+                        <div
+                          key={category.id}
+                          className="flex justify-between items-center text-sm"
+                        >
+                          <span>{category.name}</span>
                           <Badge variant="outline">{count}</Badge>
                         </div>
                       )
                     })}
                   </div>
-                </CardContent>
+                </div>
+                <Button variant="outline" size="sm" className="absolute bottom-4 left-4 group-hover:scale-110 transition">
+                  <Eye className="w-4 h-4 mr-1" /> Ver Categorias
+                </Button>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Atividade Recente</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {documents.slice(0, 5).map(doc => (
-                      <div key={doc.id} className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                          <UploadSimple className="w-4 h-4 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{doc.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(doc.uploadedAt).toLocaleDateString()}
-                          </p>
-                        </div>
+              {/* Atividade Recente */}
+              <Card className={cardBase}>
+                <div>
+                  <h4 className="text-sm font-semibold mb-3 flex items-center space-x-2">
+                    <UploadSimple className="w-5 h-5 text-primary" />
+                    <span>Atividade Recente</span>
+                  </h4>
+                  <div className="space-y-2 overflow-y-auto max-h-[140px] pr-1">
+                    {documents.slice(0, 4).map(doc => (
+                      <div key={doc.id} className="text-xs text-muted-foreground truncate">
+                        <span className="font-medium text-foreground">{doc.name}</span> —{" "}
+                        {new Date(doc.uploadedAt).toLocaleDateString()}
                       </div>
                     ))}
                     {documents.length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center py-4">
+                      <p className="text-xs text-muted-foreground text-center">
                         Nenhuma atividade recente
                       </p>
                     )}
                   </div>
-                </CardContent>
+                </div>
+
+                <Button variant="outline" size="sm" className="absolute bottom-4 left-4 group-hover:scale-110 transition">
+                  <Eye className="w-4 h-4 mr-1" /> Ver Atividade
+                </Button>
               </Card>
             </div>
           </TabsContent>
-          
           <TabsContent value="documents">
             <DocumentManager />
           </TabsContent>
@@ -1857,54 +1863,72 @@ function ClientPortal() {
             </Card>
           </TabsContent>
           
-          <TabsContent value="reports">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Relatórios Financeiros</h3>
-                <Button>
-                  <Download className="w-4 h-4 mr-2" />
-                  Baixar Todos
-                </Button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { name: 'Balanço Dezembro 2024', type: 'PDF', size: '245 KB', date: '15/12/2024' },
-                  { name: 'DRE Novembro 2024', type: 'Excel', size: '186 KB', date: '30/11/2024' },
-                  { name: 'Relatório Fiscal', type: 'PDF', size: '532 KB', date: '25/11/2024' },
-                  { name: 'Demonstrativo de Impostos', type: 'PDF', size: '298 KB', date: '20/11/2024' },
-                  { name: 'Balancete Outubro', type: 'Excel', size: '145 KB', date: '31/10/2024' },
-                  { name: 'Relatório de Folha', type: 'PDF', size: '367 KB', date: '28/10/2024' }
-                ].map((report, index) => (
-                  <Card key={index} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                          {report.type === 'PDF' ? 
-                            <FilePdf className="w-5 h-5 text-red-600" /> :
-                            <FileXls className="w-5 h-5 text-green-600" />
-                          }
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm">{report.name}</h4>
-                          <p className="text-xs text-muted-foreground">{report.size} • {report.date}</p>
-                          <div className="flex space-x-2 mt-3">
-                            <Button size="sm" variant="outline" className="text-xs">
-                              <Eye className="w-3 h-3 mr-1" />
-                              Ver
-                            </Button>
-                            <Button size="sm" variant="outline" className="text-xs">
-                              <Download className="w-3 h-3 mr-1" />
-                              Download
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
+<TabsContent value="reports" className="space-y-6">
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <h3 className="text-lg font-semibold text-center sm:text-left">Relatórios Financeiros</h3>
+    <Button className="w-full sm:w-auto justify-center">
+      <Download className="w-4 h-4 mr-2" />
+      Baixar Todos
+    </Button>
+  </div>
+
+  {/* --- GRID DE RELATÓRIOS --- */}
+  <div className="flex flex-wrap justify-center gap-6">
+    {[
+      { name: 'Balanço Dezembro 2024', type: 'PDF', size: '245 KB', date: '15/12/2024' },
+      { name: 'DRE Novembro 2024', type: 'Excel', size: '186 KB', date: '30/11/2024' },
+      { name: 'Relatório Fiscal', type: 'PDF', size: '532 KB', date: '25/11/2024' },
+      { name: 'Demonstrativo de Impostos', type: 'PDF', size: '298 KB', date: '20/11/2024' },
+      { name: 'Balancete Outubro', type: 'Excel', size: '145 KB', date: '31/10/2024' },
+      { name: 'Relatório de Folha', type: 'PDF', size: '367 KB', date: '28/10/2024' }
+    ].map((report, index) => (
+      <Card
+        key={index}
+        className="group relative w-[150px] h-[265px] hover:w-[250px] hover:h-[250px] transition-all duration-300 ease-in-out flex flex-col justify-between items-start p-4 rounded-2xl shadow-md hover:shadow-lg bg-white"
+      >
+        {/* --- CABEÇALHO --- */}
+        <div className="flex items-start w-full gap-3">
+          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+            {report.type === 'PDF' ? (
+              <FilePdf className="w-5 h-5 text-red-600" />
+            ) : (
+              <FileXls className="w-5 h-5 text-green-600" />
+            )}
+          </div>
+
+          {/* --- TEXTO COM QUEBRA DE LINHA --- */}
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-sm sm:text-base break-words whitespace-normal leading-tight">
+              {report.name}
+            </h4>
+            <p className="text-xs text-muted-foreground break-words whitespace-normal leading-snug">
+              {report.size} • {report.date}
+            </p>
+          </div>
+        </div>
+
+        {/* --- BOTÕES --- */}
+        <div className="flex flex-col items-start gap-2 mt-4">
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs flex items-center justify-start w-[120px]"
+          >
+            <Eye className="w-3 h-3 mr-1" /> Ver
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs flex items-center justify-start w-[120px]"
+          >
+            <Download className="w-3 h-3 mr-1" /> Download
+          </Button>
+        </div>
+      </Card>
+    ))}
+  </div>
+</TabsContent>
+
           
           <TabsContent value="leads">
             <div className="space-y-4">
@@ -2032,11 +2056,22 @@ function Footer() {
 }
 
 function App() {
+  // Função auxiliar para abrir WhatsApp com tratamento de erro
+  const openWhatsApp = () => {
+    try {
+      const whatsappNumber = "5517999796013";
+      const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('Erro ao abrir WhatsApp:', error);
+      toast.error('Erro ao abrir WhatsApp. Por favor, tente novamente.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <Hero />
-      <MEISection />
       <ServicesSection />
       <ProcessSection />
       <PlansSection />
@@ -2045,6 +2080,7 @@ function App() {
       <TestimonialsSection />
       <About />
       <ContactForm />
+      <Toaster position="top-right" />
       
       <footer className="bg-primary text-primary-foreground py-12 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
