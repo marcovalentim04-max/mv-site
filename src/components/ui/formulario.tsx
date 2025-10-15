@@ -36,6 +36,20 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
   
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Função segura para fechar o modal
+  const safeClose = () => {
+    try {
+      // Pequeno delay para garantir que o DOM foi limpo
+      setTimeout(() => {
+        onClose();
+      }, 0);
+    } catch (error) {
+      console.error('Erro ao fechar modal:', error);
+      // Tenta fechar de qualquer forma
+      onClose();
+    }
+  };
+
   const validateStep1 = () => {
     const newErrors: Record<string, string> = {};
     
@@ -125,7 +139,7 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
         
         // Fechar após 3 segundos
         setTimeout(() => {
-          onClose();
+          safeClose();
         }, 3000);
       } else {
         toast.error(result.error || "Erro ao enviar solicitação");
@@ -163,7 +177,7 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
           <p className="text-gray-600 mb-6">
             Recebemos sua solicitação de abertura de empresa. Nossa equipe entrará em contato em breve!
           </p>
-          <Button onClick={onClose} className="w-full">
+          <Button onClick={safeClose} className="w-full">
             Fechar
           </Button>
         </motion.div>
@@ -173,11 +187,11 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
 
   return (
     <motion.div
-      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4 overflow-y-auto"
+      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4 overflow-y-auto "
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      onClick={onClose}
+      onClick={safeClose}
     >
       <motion.div
         initial={{ y: -50, opacity: 0 }}
@@ -189,7 +203,7 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
       >
           <button
             type="button"
-            onClick={onClose}
+            onClick={safeClose}
             className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 text-gray-700 z-10"
             aria-label="Fechar formulário"
           >
@@ -197,7 +211,7 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
           </button>
 
           <CardHeader className="pb-4">
-            <CardTitle className="text-2xl">Abrir Empresa Grátis</CardTitle>
+            <CardTitle className="text-2xl mt-4">Abrir Empresa Grátis</CardTitle>
             <CardDescription>
               Preencha os dados abaixo para iniciar o processo de abertura da sua empresa.
             </CardDescription>
@@ -276,7 +290,7 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
                     {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                   </div>
 
-                  <Button type="button" onClick={handleNext} className="w-full mt-6">
+                  <Button type="button" onClick={handleNext} className="w-full mt-6 mb-2">
                     Próximo
                   </Button>
                 </motion.div>
@@ -344,28 +358,24 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
                     {errors.businessActivity && <p className="text-red-500 text-sm mt-1">{errors.businessActivity}</p>}
                   </div>
 
-                  <div>
-                    <Label htmlFor="preferredContact">Como prefere ser contatado?</Label>
-                    <Select 
-                      value={preferredContactMethod} 
-                      onValueChange={(value) => {
-                        try {
-                          setPreferredContactMethod(value);
-                        } catch (error) {
-                          console.error('Erro ao selecionar método de contato:', error);
-                        }
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                        <SelectItem value="email">E-mail</SelectItem>
-                        <SelectItem value="phone">Telefone</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  
+                    <div>
+                        <Label htmlFor="preferredContact">Como prefere ser contatado?</Label>
+                        <Select 
+                          value={preferredContactMethod} 
+                          onValueChange={(value) => setPreferredContactMethod(value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione um método" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                            <SelectItem value="email">E-mail</SelectItem>
+                            <SelectItem value="phone">Telefone</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
 
                   <div>
                     <Label htmlFor="notes">Observações (opcional)</Label>
@@ -379,7 +389,7 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
                     />
                   </div>
 
-                  <div className="flex gap-3 mt-6">
+                  <div className="flex gap-3 mt-6 mb-6">
                     <Button 
                       type="button" 
                       onClick={handleBack} 
@@ -410,6 +420,6 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
             </form>
           </CardContent>
         </motion.div>
-      </motion.div>
+      </motion.div> 
   );
 }
