@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -155,19 +154,8 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
   // Tela de sucesso
   if (submitted) {
     return (
-      <motion.div
-        className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 p-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.8, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="max-w-md w-full p-8 shadow-2xl rounded-2xl bg-white text-center"
-        >
+      <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 p-4">
+        <div className="max-w-md w-full p-8 shadow-2xl rounded-2xl bg-white text-center">
           <div className="flex justify-center mb-4">
             <CheckCircle2 className="w-16 h-16 text-green-500" />
           </div>
@@ -180,24 +168,17 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
           <Button onClick={safeClose} className="w-full">
             Fechar
           </Button>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <motion.div
-      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4 overflow-y-auto "
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4 overflow-y-auto"
       onClick={safeClose}
     >
-      <motion.div
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 50, opacity: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      <div
         className="max-w-2xl w-full my-8 shadow-2xl rounded-2xl bg-white relative"
         onClick={(e) => e.stopPropagation()}
       >
@@ -230,12 +211,7 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Etapa 1: Dados Pessoais */}
               {step === 1 && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-4"
-                >
+                <div className="space-y-4">
                   <h3 className="font-semibold text-lg">Seus Dados Pessoais</h3>
                   
                   <div>
@@ -293,17 +269,12 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
                   <Button type="button" onClick={handleNext} className="w-full mt-6 mb-2">
                     Próximo
                   </Button>
-                </motion.div>
+                </div>
               )}
 
               {/* Etapa 2: Dados da Empresa */}
               {step === 2 && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="space-y-4"
-                >
+                <div className="space-y-4">
                   <h3 className="font-semibold text-lg">Dados da Empresa</h3>
                   
                   <div>
@@ -415,11 +386,11 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
                       )}
                     </Button>
                   </div>
-                </motion.div>
+                </div>
               )}
             </form>
           </CardContent>
-        </motion.div>
-      </motion.div> 
+        </div>
+      </div> 
   );
 }
