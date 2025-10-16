@@ -291,28 +291,22 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
 
                   <div>
                     <Label htmlFor="businessType">Tipo de Empresa *</Label>
-                    <Select 
-                      value={businessType} 
-                      onValueChange={(value) => {
-                        try {
-                          setBusinessType(value);
-                          setErrors((prev) => ({ ...prev, businessType: '' }));
-                        } catch (error) {
-                          console.error('Erro ao selecionar tipo de empresa:', error);
-                        }
+                    <select
+                      id="businessType"
+                      value={businessType}
+                      onChange={(e) => {
+                        setBusinessType(e.target.value);
+                        setErrors((prev) => ({ ...prev, businessType: '' }));
                       }}
+                      className={`flex h-9 w-full items-center justify-between rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${errors.businessType ? "border-red-500" : "border-input"}`}
                     >
-                      <SelectTrigger className={`${errors.businessType ? "border-red-500" : ""}`}>
-                        <SelectValue placeholder="Selecione o tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="MEI">MEI - Microempreendedor Individual</SelectItem>
-                        <SelectItem value="ME">ME - Microempresa</SelectItem>
-                        <SelectItem value="EIRELI">EIRELI - Empresa Individual</SelectItem>
-                        <SelectItem value="LTDA">LTDA - Sociedade Limitada</SelectItem>
-                        <SelectItem value="SA">S.A. - Sociedade Anônima</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <option value="">Selecione o tipo</option>
+                      <option value="MEI">MEI - Microempreendedor Individual</option>
+                      <option value="ME">ME - Microempresa</option>
+                      <option value="EIRELI">EIRELI - Empresa Individual</option>
+                      <option value="LTDA">LTDA - Sociedade Limitada</option>
+                      <option value="SA">S.A. - Sociedade Anônima</option>
+                    </select>
                     {errors.businessType && <p className="text-red-500 text-sm mt-1">{errors.businessType}</p>}
                   </div>
 
@@ -332,19 +326,16 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
                   
                     <div>
                         <Label htmlFor="preferredContact">Como prefere ser contatado?</Label>
-                        <Select 
-                          value={preferredContactMethod} 
-                          onValueChange={(value) => setPreferredContactMethod(value)}
+                        <select
+                          id="preferredContact"
+                          value={preferredContactMethod}
+                          onChange={(e) => setPreferredContactMethod(e.target.value)}
+                          className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione um método" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                            <SelectItem value="email">E-mail</SelectItem>
-                            <SelectItem value="phone">Telefone</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          <option value="whatsapp">WhatsApp</option>
+                          <option value="email">E-mail</option>
+                          <option value="phone">Telefone</option>
+                        </select>
                       </div>
 
 
