@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle2, Mail, Phone } from "lucide-react";
 import { CompanyOpeningService, validateCPF, validateEmail, formatCPF, formatPhone } from "@/lib/companyOpeningService";
 
 type OpenCompanyFormProps = {
@@ -14,6 +14,7 @@ type OpenCompanyFormProps = {
 export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   
   // Dados pessoais
   const [fullName, setFullName] = useState("");
@@ -130,12 +131,14 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
       });
 
       if (result.success) {
-        // Fechar modal IMEDIATAMENTE
-        onClose();
-        // Mostrar mensagem DEPOIS que o modal já fechou
+        // Mostrar card de sucesso
+        setShowSuccess(true);
+        setIsSubmitting(false);
+        
+        // Fechar automaticamente após 5 segundos
         setTimeout(() => {
-          alert("✅ Solicitação enviada com sucesso! Nossa equipe entrará em contato em breve.");
-        }, 300);
+          onClose();
+        }, 5000);
       } else {
         alert(result.error || "Erro ao enviar solicitação");
         setIsSubmitting(false);
@@ -152,6 +155,61 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
       className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4 overflow-y-auto"
       onClick={safeClose}
     >
+      {showSuccess ? (
+        // Card de Sucesso Bonito
+        <div
+          className="max-w-md w-full animate-in fade-in zoom-in duration-300"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Card className="border-green-200 shadow-2xl">
+            <CardContent className="pt-6 pb-8 px-8 text-center">
+              <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 animate-in zoom-in duration-500">
+                <CheckCircle2 className="w-12 h-12 text-green-600" />
+              </div>
+              
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                Sucesso! 🎉
+              </h2>
+              
+              <p className="text-lg text-gray-700 mb-6">
+                Solicitação enviada com sucesso! Nossa equipe entrará em contato em breve.
+              </p>
+              
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-green-800 font-medium mb-3">
+                  📋 Próximos Passos:
+                </p>
+                <ul className="text-sm text-green-700 space-y-2 text-left">
+                  <li className="flex items-start gap-2">
+                    <Mail className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>Você receberá um e-mail de confirmação</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Phone className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>Nossa equipe entrará em contato em até 24h</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>Iniciaremos o processo de abertura da sua empresa</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <Button
+                onClick={onClose}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-6 text-base"
+              >
+                Entendido
+              </Button>
+              
+              <p className="text-xs text-gray-500 mt-4">
+                Esta janela fechará automaticamente em alguns segundos
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        // Formulário Normal
       <div
         className="max-w-2xl w-full my-8 shadow-2xl rounded-2xl bg-white relative"
         onClick={(e) => e.stopPropagation()}
@@ -356,6 +414,7 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
             </form>
           </CardContent>
         </div>
-      </div> 
+      )}
+    </div> 
   );
 }
