@@ -3,11 +3,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { CompanyOpeningService, validateCPF, validateEmail, formatCPF, formatPhone } from "@/lib/companyOpeningService";
-import { toast } from "sonner";
 
 type OpenCompanyFormProps = {
   onClose: () => void;
@@ -16,7 +14,6 @@ type OpenCompanyFormProps = {
 export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   
   // Dados pessoais
   const [fullName, setFullName] = useState("");
@@ -113,7 +110,7 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
       const existingCheck = await CompanyOpeningService.findByEmailOrCPF(email, cpf.replace(/\D/g, ''));
       
       if (existingCheck.exists) {
-        toast.error("Já existe um cadastro com este CPF ou email!");
+        alert("Já existe um cadastro com este CPF ou email!");
         setIsSubmitting(false);
         return;
       }
@@ -133,45 +130,22 @@ export default function OpenCompanyForm({ onClose }: OpenCompanyFormProps) {
       });
 
       if (result.success) {
-        setSubmitted(true);
-        toast.success("Solicitação enviada com sucesso!");
-        
-        // Fechar após 3 segundos
+        // Fechar modal IMEDIATAMENTE
+        onClose();
+        // Mostrar mensagem DEPOIS que o modal já fechou
         setTimeout(() => {
-          safeClose();
-        }, 3000);
+          alert("✅ Solicitação enviada com sucesso! Nossa equipe entrará em contato em breve.");
+        }, 300);
       } else {
-        toast.error(result.error || "Erro ao enviar solicitação");
+        alert(result.error || "Erro ao enviar solicitação");
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao processar solicitação");
-    } finally {
+      alert("Erro ao processar solicitação. Por favor, tente novamente.");
       setIsSubmitting(false);
     }
   };
-
-  // Tela de sucesso
-  if (submitted) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 p-4">
-        <div className="max-w-md w-full p-8 shadow-2xl rounded-2xl bg-white text-center">
-          <div className="flex justify-center mb-4">
-            <CheckCircle2 className="w-16 h-16 text-green-500" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Solicitação Enviada!
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Recebemos sua solicitação de abertura de empresa. Nossa equipe entrará em contato em breve!
-          </p>
-          <Button onClick={safeClose} className="w-full">
-            Fechar
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div
